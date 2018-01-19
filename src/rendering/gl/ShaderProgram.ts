@@ -1,4 +1,4 @@
-import {vec4, mat4} from 'gl-matrix';
+import {vec2, vec3, vec4, mat4} from 'gl-matrix';
 import Drawable from './Drawable';
 import {gl} from '../../globals';
 
@@ -34,6 +34,11 @@ class ShaderProgram {
   unifTrig: WebGLUniformLocation;
   unifScaleSpeed: WebGLUniformLocation;
   unifRotateSpeed: WebGLUniformLocation;
+  unifOctave: WebGLUniformLocation;
+  unifFloatSpeed: WebGLUniformLocation;
+  // unifResolution: WebGLUniformLocation;
+  // unifCamPos: WebGLUniformLocation;
+  // unifCamDir: WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -58,6 +63,11 @@ class ShaderProgram {
     this.unifTrig       = gl.getUniformLocation(this.prog, "u_Trig");
     this.unifScaleSpeed = gl.getUniformLocation(this.prog, "u_ScaleSpeed");
     this.unifRotateSpeed= gl.getUniformLocation(this.prog, "u_RotateSpeed");
+    this.unifOctave     = gl.getUniformLocation(this.prog, "u_Octave");
+    this.unifFloatSpeed= gl.getUniformLocation(this.prog, "u_FloatSpeed");
+    // this.unifResolution = gl.getUniformLocation(this.prog, "u_Resolution");
+    // this.unifCamPos = gl.getUniformLocation(this.prog, "u_CamPos");
+    // this.unifCamDir = gl.getUniformLocation(this.prog, "u_CamDir");
   }
 
   use() {
@@ -113,10 +123,10 @@ class ShaderProgram {
     this.use();
     if (this.unifTrig !== -1) {
       if (trig){
-        gl.uniform1i(this.unifTrig, 1);
+        gl.uniform1f(this.unifTrig, 1.0);
       }
       else{
-        gl.uniform1i(this.unifTrig, 0);
+        gl.uniform1f(this.unifTrig, 0.0);
       }
     }
   }
@@ -134,6 +144,36 @@ class ShaderProgram {
       gl.uniform1f(this.unifRotateSpeed, rotateSpeed);
     }
   }
+
+  setFloatSpeed(floatSpeed: number) {
+    this.use();
+    if (this.unifFloatSpeed !== -1) {
+      gl.uniform1f(this.unifFloatSpeed, floatSpeed);
+    }
+  }
+
+  setOctave(octave: number) {
+    this.use();
+    if (this.unifOctave !== -1) {
+      gl.uniform1f(this.unifOctave, octave);
+    }
+  }
+  // setResolution(resolution: vec2) {
+  //   this.use();
+  //   if (this.unifResolution !== -1) {
+  //     gl.uniform2fv(this.unifResolution, resolution);
+  //   }
+  // }
+
+  // setCamInfo(camPos: vec3, camDir: vec3) {
+  //   this.use();
+  //   if (this.unifCamPos !== -1) {
+  //     gl.uniform3fv(this.unifCamPos, camPos);
+  //   }
+  //   if (this.unifCamDir !== -1) {
+  //     gl.uniform3fv(this.unifCamDir, camDir);
+  //   }
+  // }
 
   draw(d: Drawable) {
     this.use();

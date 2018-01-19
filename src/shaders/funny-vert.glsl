@@ -19,7 +19,7 @@ uniform mat4 u_ViewProj;    // The matrix that defines the camera's transformati
                             // We've written a static matrix for you to use for HW2,
                             // but in HW3 you'll have to generate one yourself
 uniform float u_Time; // The color with which to render this instance of geometry.
-uniform int u_Trig;
+uniform float u_Trig;
 uniform float u_ScaleSpeed;
 uniform float u_RotateSpeed;
 
@@ -62,7 +62,7 @@ void main()
                                                             // the model matrix.
 
     vec4 modelposition;                                                        
-    if (u_Trig == 1){
+    if (u_Trig == 1.0){
         mat4 rotMat = rotationMatrix(vec3(0,1,0), u_Time*50.0*u_RotateSpeed);
         modelposition = u_Model * rotMat * vs_Pos;   // Temporarily store the transformed vertex positions for use below
         modelposition = vec4(vec3(modelposition)*(1.0 + sin(u_Time*u_ScaleSpeed*2.0*3.1415926)), 1.0);

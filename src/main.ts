@@ -12,14 +12,16 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
 export const controls = {
-  tesselations: 5,
+  tesselations: 6,
   'Load Scene': loadScene, // A function pointer, essentially
   Color: [255, 0, 0],
   Color2: [0, 255, 255],  
-  Shader: 'lambert',
+  Shader: 'perlin3D',
   FunnyTrig: false,
   ScaleSpeed: 1.0,
   RotateSpeed: 1.0,
+  Octave: 4.0,
+  FloatSpeed: 1.0,
 };
 
 
@@ -51,10 +53,12 @@ function main() {
   gui.add(controls, 'Load Scene');
   gui.addColor(controls, 'Color');
   gui.addColor(controls, 'Color2');
-  gui.add(controls, 'Shader', ['lambert', 'funny'])
+  gui.add(controls, 'Shader', ['lambert', 'funny', 'perlin3D'])
   gui.add(controls, 'FunnyTrig')
   gui.add(controls, 'ScaleSpeed', 0.1, 10.0).step(0.1);
   gui.add(controls, 'RotateSpeed', 0, 2.0).step(0.1);
+  gui.add(controls, 'Octave', 0.0, 10.0).step(1.0);
+  gui.add(controls, 'FloatSpeed', 0.0, 10.0).step(0.1);
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -85,16 +89,28 @@ function main() {
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/funny-frag.glsl')),
   ]);
 
+  const perlin3D = new ShaderProgram([
+    new Shader(gl.VERTEX_SHADER, require('./shaders/perlin3D-vert.glsl')),
+    new Shader(gl.FRAGMENT_SHADER, require('./shaders/perlin3D-frag.glsl')),
+  ]);
+
   // This function will be called every frame
   function tick() {
     camera.update();
     stats.begin();
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.clear();
-    let shader = lambert;
-    if (controls.Shader == 'funny'){
+    let shader;
+    if (controls.Shader == 'lambert'){
+      shader = lambert;
+    }
+    else if (controls.Shader == 'funny'){
       shader = funny;
     }
+    else if (controls.Shader == 'perlin3D'){
+      shader = perlin3D;
+    }
+
     renderer.render(camera, shader, [
       icosphere,
       //square,
