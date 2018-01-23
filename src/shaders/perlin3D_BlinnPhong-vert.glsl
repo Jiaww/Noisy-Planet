@@ -33,11 +33,9 @@ in vec4 vs_Nor;             // The array of vertex normals passed to the shader
 in vec4 vs_Col;             // The array of vertex colors passed to the shader.
 
 out vec4 fs_Nor;            // The array of normals that has been transformed by u_ModelInvTr. This is implicitly passed to the fragment shader.
-out vec4 fs_LightVec;       // The direction in which our virtual light lies, relative to each vertex. This is implicitly passed to the fragment shader.
 out vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.
 out vec4 fs_Pos;
 out float fs_Noise;
-out float fs_Noise2;
 
 const vec4 lightPos = vec4(5, 5, 3, 1); //The position of our virtual light, which is used to compute the shading of
                                         //the geometry in the fragment shader.
@@ -125,8 +123,6 @@ void main()
 
     vec4 modelposition = u_Model * vs_Pos;   // Temporarily store the transformed vertex positions for use below
 
-
-
     // noise
     vec3 floating;
     if (u_Trig == 1.0){
@@ -135,19 +131,14 @@ void main()
     else{
         floating = vec3(0.0);
     }    
-    float noise, noise2;
+    float noise;
 #ifdef SUMMED
     noise = SummedNoise(vec3(modelposition) + floating, u_Octave);
-    noise2 = SummedNoise(vec3(modelposition), 2.0);
 #endif  
     noise = pow(noise, 3.0);
-    noise2 = pow(noise2, 2.0);
     fs_Noise = noise;
-    fs_Noise2 = noise2;
     vec4 noise_Pos = modelposition + noise * u_FloatAmp * fs_Nor;
     fs_Pos = noise_Pos;
-    fs_LightVec = lightPos - noise_Pos;  // Compute the direction in which the light source lies
-
     gl_Position = u_ViewProj * noise_Pos;// gl_Position is a built-in variable of OpenGL which is
                                              // used to render the final positions of the geometry's vertices
 

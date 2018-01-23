@@ -42,8 +42,20 @@ class OpenGLRenderer {
     prog.setRotateSpeed(controls.RotateSpeed);
     prog.setOctave(controls.Octave);
     prog.setFloatSpeed(controls.FloatSpeed);
-    // prog.setResolution(vec2.fromValues(window.innerWidth, window.innerHeight));
-    // prog.setCamInfo(camera.position, camera.direction);
+    prog.setFloatAmp(controls.FloatAmp);
+    //prog.setResolution(vec2.fromValues(window.innerWidth, window.innerHeight));
+    prog.setCamInfo(camera.position, camera.direction);
+
+    prog.setColors(
+      vec4.fromValues(controls.OceanColor[0]/255, controls.OceanColor[1]/255, controls.OceanColor[2]/255, 1),
+      vec4.fromValues(controls.SnowColor[0]/255, controls.SnowColor[1]/255, controls.SnowColor[2]/255, 1),
+      vec4.fromValues(controls.CoastColor[0]/255, controls.CoastColor[1]/255, controls.CoastColor[2]/255, 1),
+      vec4.fromValues(controls.FoliageColor[0]/255, controls.FoliageColor[1]/255, controls.FoliageColor[2]/255, 1),
+      vec4.fromValues(controls.MountainColor[0]/255, controls.MountainColor[1]/255, controls.MountainColor[2]/255, 1));
+
+    prog.setHeightsInfo(vec4.fromValues(controls.OceanHeight, controls.CoastHeight, controls.SnowHeight, controls.PolarCapsAttitude));
+    prog.setTerrainInfo(vec2.fromValues(controls.TerrainExp, controls.TerrainSeed));
+
     for (let drawable of drawables) {
       prog.draw(drawable);
     }

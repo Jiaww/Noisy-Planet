@@ -36,9 +36,19 @@ class ShaderProgram {
   unifRotateSpeed: WebGLUniformLocation;
   unifOctave: WebGLUniformLocation;
   unifFloatSpeed: WebGLUniformLocation;
-  // unifResolution: WebGLUniformLocation;
-  // unifCamPos: WebGLUniformLocation;
-  // unifCamDir: WebGLUniformLocation;
+  unifFloatAmp: WebGLUniformLocation;
+  unifResolution: WebGLUniformLocation;
+  unifCamPos: WebGLUniformLocation;
+  unifCamDir: WebGLUniformLocation;
+
+  //
+  unifOceanColor: WebGLUniformLocation;
+  unifSnowColor: WebGLUniformLocation;
+  unifCoastColor: WebGLUniformLocation;
+  unifFoliageColor: WebGLUniformLocation;
+  unifMountainColor: WebGLUniformLocation;
+  unifHeightsInfo: WebGLUniformLocation;
+  unifTerrainInfo: WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -64,10 +74,20 @@ class ShaderProgram {
     this.unifScaleSpeed = gl.getUniformLocation(this.prog, "u_ScaleSpeed");
     this.unifRotateSpeed= gl.getUniformLocation(this.prog, "u_RotateSpeed");
     this.unifOctave     = gl.getUniformLocation(this.prog, "u_Octave");
-    this.unifFloatSpeed= gl.getUniformLocation(this.prog, "u_FloatSpeed");
-    // this.unifResolution = gl.getUniformLocation(this.prog, "u_Resolution");
-    // this.unifCamPos = gl.getUniformLocation(this.prog, "u_CamPos");
-    // this.unifCamDir = gl.getUniformLocation(this.prog, "u_CamDir");
+    this.unifFloatSpeed = gl.getUniformLocation(this.prog, "u_FloatSpeed");
+    this.unifFloatAmp   = gl.getUniformLocation(this.prog, "u_FloatAmp");
+    this.unifResolution = gl.getUniformLocation(this.prog, "u_Resolution");
+    this.unifCamPos = gl.getUniformLocation(this.prog, "u_CamPos");
+    this.unifCamDir = gl.getUniformLocation(this.prog, "u_CamDir");
+
+    //
+    this.unifOceanColor   = gl.getUniformLocation(this.prog, "u_OceanColor");
+    this.unifSnowColor    = gl.getUniformLocation(this.prog, "u_SnowColor");
+    this.unifCoastColor   = gl.getUniformLocation(this.prog, "u_CoastColor");
+    this.unifFoliageColor = gl.getUniformLocation(this.prog, "u_FoliageColor");
+    this.unifMountainColor= gl.getUniformLocation(this.prog, "u_MountainColor");
+    this.unifHeightsInfo  = gl.getUniformLocation(this.prog, "u_HeightsInfo");
+    this.unifTerrainInfo  = gl.getUniformLocation(this.prog, "u_TerrainInfo");
   }
 
   use() {
@@ -110,6 +130,33 @@ class ShaderProgram {
     if (this.unifColor !== -1) {
       gl.uniform4fv(this.unifColor2, color);
     }
+  }
+
+  // Set Colors
+  setColors(oceanColor: vec4, snowColor: vec4, coastColor: vec4, foliageColor: vec4, mountainColor: vec4){
+    this.use();
+    if (this.unifOceanColor !== -1)
+      gl.uniform4fv(this.unifOceanColor, oceanColor);
+    if (this.unifSnowColor !== -1)
+      gl.uniform4fv(this.unifSnowColor, snowColor);
+    if (this.unifCoastColor !== -1)
+      gl.uniform4fv(this.unifCoastColor, coastColor);
+    if (this.unifFoliageColor !== -1)
+      gl.uniform4fv(this.unifFoliageColor, foliageColor);
+    if (this.unifMountainColor !== -1)
+      gl.uniform4fv(this.unifMountainColor, mountainColor);
+  }
+
+  setHeightsInfo(heightsInfo: vec4){
+    this.use();
+    if (this.unifHeightsInfo !== -1)
+      gl.uniform4fv(this.unifHeightsInfo, heightsInfo);
+  }
+
+  setTerrainInfo(terrainInfo: vec2){
+    this.use();
+    if (this.unifHeightsInfo !== -1)
+      gl.uniform2fv(this.unifTerrainInfo, terrainInfo);
   }
 
   updateTime(time: number){
@@ -158,22 +205,30 @@ class ShaderProgram {
       gl.uniform1f(this.unifOctave, octave);
     }
   }
-  // setResolution(resolution: vec2) {
-  //   this.use();
-  //   if (this.unifResolution !== -1) {
-  //     gl.uniform2fv(this.unifResolution, resolution);
-  //   }
-  // }
 
-  // setCamInfo(camPos: vec3, camDir: vec3) {
-  //   this.use();
-  //   if (this.unifCamPos !== -1) {
-  //     gl.uniform3fv(this.unifCamPos, camPos);
-  //   }
-  //   if (this.unifCamDir !== -1) {
-  //     gl.uniform3fv(this.unifCamDir, camDir);
-  //   }
-  // }
+  setFloatAmp(floatAmp: number){
+    this.use();
+    if (this.unifFloatAmp !== -1){
+      gl.uniform1f(this.unifFloatAmp, floatAmp);
+    }
+  }
+  
+  setResolution(resolution: vec2) {
+    this.use();
+    if (this.unifResolution !== -1) {
+      gl.uniform2fv(this.unifResolution, resolution);
+    }
+  }
+
+  setCamInfo(camPos: vec3, camDir: vec3) {
+    this.use();
+    if (this.unifCamPos !== -1) {
+      gl.uniform3fv(this.unifCamPos, camPos);
+    }
+    if (this.unifCamDir !== -1) {
+      gl.uniform3fv(this.unifCamDir, camDir);
+    }
+  }
 
   draw(d: Drawable) {
     this.use();

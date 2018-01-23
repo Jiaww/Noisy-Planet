@@ -14,31 +14,48 @@
 precision highp float;
 
 uniform vec4 u_Color; // The color with which to render this instance of geometry.
-uniform vec4 u_Color2; // The color with which to render this instance of geometry.
+uniform vec4 u_Color2; // The color 2 with which to render this instance of geometry.
+// uniform vec4 u_Specular_Color;
 uniform float u_Time; // The color with which to render this instance of geometry.
 uniform float u_Octave;
 uniform float u_Trig;
 uniform float u_FloatSpeed;
+uniform vec3 u_CamPos;
 
 // These are the interpolated values out of the rasterizer, so you can't know
 // their specific values without knowing the vertices that contributed to them
 in vec4 fs_Nor;
-in vec4 fs_LightVec;
 in vec4 fs_Col;
 in vec4 fs_Pos;
 in float fs_Noise;
-in float fs_Noise2;
 
 out vec4 out_Col; // This is the final output color that you will see on your
                   // screen for the pixel that is currently being processed.
+
+const vec4 lightPos = vec4(5, 5, 3, 1); //The position of our virtual light, which is used to compute the shading of
+                                        //the geometry in the fragment shader.
+
 
 void main()
 {
     // Material base color (before shading)
     vec4 diffuseColor;
-    vec4 color1 = u_Color, color2 = u_Color2;
+
     // Calculate the diffuse term for Lambert shading
-    float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));
+    vec3 lightDir = vec3(lightPos) - vec3(fs_Pos);
+    lightDir = normalize(lightDir);
+    
+    vec3 normal = normalize(vec3(fs_Nor));
+    float diffuseTerm = dot(normal, normalize(lightDir));
+    float specularTerm = 0.0;
+    if (diffuseTerm > 0.0){
+        vec3 viewDir = u_CamPos - vec3(fs_Pos);
+        viewDir = normalize(viewDir);
+        vec3 halfDir = normalize(lightDir + viewDir);
+        float specAngle = max(dot(halfDir, normal), 0.0);
+        specularTerm = 0.5 * pow(specAngle, 16.0);
+
+    }
     // Avoid negative lighting values
     diffuseTerm = clamp(diffuseTerm, 0.0, 1.0);
     float ambientTerm = 0.2;
@@ -50,12 +67,7 @@ void main()
     // Compute final shaded color
     //out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);
     float interp = clamp(fs_Noise / 0.05, 0.0, 1.0);
-    if (fs_Pos.y > 0.80 || fs_Pos.y < -0.80){
-        // Polar
-        float t = ((abs(fs_Pos.y)-0.8)/0.2) + fs_Noise2;
-        color2 = vec4(0.9, 0.95, 0.95, 1.0) * t + u_Color2 * (1.0-t); 
-    }
-    diffuseColor = color1 * interp + color2 * (1.0 - interp);
-    out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);
-    // out_Col = vec4(vec3(noise), 1.0);
+    diffuseColor = u_Color * interp + u_Color2 * (1.0 - interp);
+    out_Col = vec4(diffuseColor.rgb * lightIntensity + vec3(0.9, 0.9, 0.9) * specularTerm, diffuseColor.a);
+    //out_Col = vec4(vec3(fs_Noise), 1.0);
 }
