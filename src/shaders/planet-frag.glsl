@@ -71,18 +71,19 @@ float PerlinNoise(vec3 uvw)
 
 #define Epsilon 0.0001
 
-float fbm(vec3 x)
+float fbm(vec3 x, float resolution, int LOD)
 {
-  float v = 0.0;
-  float a = 0.5;
-  vec3 shift = vec3(100.0);
-  for (int i = 0; i < int(u_Octave); ++i)
-  {
-   v += a * PerlinNoise(x);
-   x = x * 2.0 + shift;
-   a *= 0.5;
-  }  
-  return v;
+    x =  x * resolution;
+    float v = 0.0;
+    float a = 0.5;
+    vec3 shift = vec3(100.0);
+    for (int i = 0; i < LOD; ++i)
+    {
+    v += a * PerlinNoise(x);
+    x = x * 2.0 + shift;
+    a *= 0.5;
+    }  
+    return v;
 }
 
 // These are the interpolated values out of the rasterizer, so you can't know
@@ -126,11 +127,17 @@ void main()
 
     //Terrain-atmosphere Color Interpolation
 
+// The 'detail normal' method is learned from Byumjin Kim, this is the only way to deal with current situation,
+// Because the vertex position is changed in vertex shader, but the normal still pass from cpu still unchanged, thus
+// we have to recompute the normals. 
+
+// Implicit Procedural Planet Generation - Report 4.4.2 Level of Detail
     //terrain
     if(fs_TerrainType > 0.0)
     {
-        float u_resolution = 4.0;
-        float noise = fbm(fs_Pos.xyz*u_resolution) * 2.0;
+        float resolution = 4.0;
+        int LOD = int(10.0 * (1.0 - smoothstep(0.0, 6.0, log(length(u_CamPos.xyz)))));
+        float noise = fbm(fs_Pos.xyz, resolution, LOD) * 2.0;
         noise = pow(noise,  u_TerrainInfo.x);
         vec4 vertexPos = fs_Pos;
         vertexPos.xyz += localNormal * noise;
@@ -144,6 +151,7 @@ void main()
         vec4 vertexPos = fs_Pos;
          //detail normal
         normalVec = normalize(cross( dFdx(vertexPos.xyz), dFdy(vertexPos.xyz))); 
+        // Near Polar
         float Interp = clamp((abs(fs_Pos.y) - u_HeightsInfo.w)/(2.0 - u_HeightsInfo.w), 0.0, 1.0);
         diffuseColor = mix(diffuseColor, u_SnowColor, pow(Interp, 2.5));
     }

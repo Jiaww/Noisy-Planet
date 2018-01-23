@@ -73,18 +73,19 @@ float PerlinNoise(vec3 uvw)
     surflet3D(uvw, uvwXHYLZL) + surflet3D(uvw, uvwXHYHZL) + surflet3D(uvw, uvwXHYLZH) + surflet3D(uvw, uvwXHYHZH))+1.0)/2.0;
 }
 
-float fbm(vec3 x)
+float fbm(vec3 x, float resolution)
 {
-  float v = 0.0;
-  float a = 0.5;
-  vec3 shift = vec3(100.0);
-  for (int i = 0; i < int(u_Octave); ++i)
-  {
-   v += a * PerlinNoise(x);
-   x = x * 2.0 + shift;
-   a *= 0.5;
-  }  
-  return v;
+    x = x * resolution;
+    float v = 0.0;
+    float a = 0.5;
+    vec3 shift = vec3(100.0);
+    for (int i = 0; i < int(u_Octave); ++i)
+    {
+    v += a * PerlinNoise(x);
+    x = x * 2.0 + shift;
+    a *= 0.5;
+    }  
+    return v;
 }
 
 
@@ -121,18 +122,19 @@ void main()
     // noise
     vec3 floating;
     if (u_Trig == 1.0){
-        floating = vec3(sin(u_Time * 2.0 * u_FloatSpeed));
+        floating = vec3(sin(u_Time * 1.0 * u_FloatSpeed));
     } 
     else{
         floating = vec3(0.0);
     }    
 
-    float u_resolution = 4.0;
-    float noiseResult = fbm((vertexPos.xyz+floating)*u_resolution) * 2.0;  
+    float resolution = 4.0;
+    float noiseResult = fbm(vertexPos.xyz+floating, resolution) * 2.0;  
     noiseResult = pow(noiseResult,  u_TerrainInfo.x);
     vertexPos.xyz += localNormal * noiseResult;
     float height = length(vertexPos.xyz);
 
+    //Generate different colors for different depth of the water
     float gap = clamp((1.0 - (oceneHeight - height)), 0.0, 1.0);
     float gap5 = pow(gap, 3.0);
  

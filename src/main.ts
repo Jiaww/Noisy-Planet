@@ -16,7 +16,8 @@ export const controls = {
   'Load Scene': loadScene, // A function pointer, essentially
   Color: [255, 0, 0],
   Color2: [0, 255, 255],  
-  Shader: 'perlin3D',
+  Shader: 'planet',
+  CloudTrig: true,
   FunnyTrig: false,
   ScaleSpeed: 1.0,
   RotateSpeed: 1.0,
@@ -73,19 +74,21 @@ function main() {
   colorSetting.addColor(controls, 'MountainColor');
   colorSetting.addColor(controls, 'FoliageColor');
 
-  var formSetting = gui.addFolder('Form Setting');
-  formSetting.add(controls, 'OceanHeight', 0.0, 1.50).step(0.01);
-  formSetting.add(controls, 'CoastHeight', 0.0, 0.04).step(0.01);
-  formSetting.add(controls, 'SnowHeight', 0.0, 2.00).step(0.01);
-  formSetting.add(controls, 'PolarCapsAttitude', 0.0, 3.0).step(0.01);
-  formSetting.add(controls, 'TerrainExp', 0.0, 1.0).step(0.01);
-  formSetting.add(controls, 'TerrainSeed', 0.0, 100.0).step(1.0);
+  var planetSetting = gui.addFolder('Planet Setting');
+  planetSetting.add(controls, 'OceanHeight', 0.0, 1.50).step(0.01);
+  planetSetting.add(controls, 'CoastHeight', 0.0, 0.04).step(0.01);
+  planetSetting.add(controls, 'SnowHeight', 0.0, 2.00).step(0.01);
+  planetSetting.add(controls, 'PolarCapsAttitude', 0.0, 3.0).step(0.01);
+  planetSetting.add(controls, 'TerrainExp', 0.0, 1.0).step(0.01);
+  planetSetting.add(controls, 'TerrainSeed', 0.0, 100.0).step(1.0);
+  planetSetting.add(controls, 'Octave', 0.0, 10.0).step(1.0);
 
-  gui.add(controls, 'Shader', ['lambert', 'funny', 'perlin3D', 'perlin3D_BlinnPhong', 'RayTracing'])
+  gui.add(controls, 'Shader', ['lambert', 'funny', 'perlin3D', 'perlin3D_BlinnPhong', 'planet'])
+  gui.add(controls, 'CloudTrig')
   gui.add(controls, 'FunnyTrig')
+  gui.add(controls, 'FloatSpeed', 0.0, 10.0).step(0.1);
   gui.add(controls, 'ScaleSpeed', 0.1, 10.0).step(0.1);
   gui.add(controls, 'RotateSpeed', 0, 2.0).step(0.1);
-  gui.add(controls, 'Octave', 0.0, 10.0).step(1.0);
   gui.add(controls, 'FloatSpeed', 0.0, 10.0).step(0.1);
   gui.add(controls, 'FloatAmp', 0.0, 10.0).step(0.1);
 
@@ -144,7 +147,6 @@ function main() {
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.clear();
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-    gl.enable(gl.BLEND);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.FRONT);
@@ -157,19 +159,16 @@ function main() {
       shader = perlin3D;
     else if (controls.Shader == 'perlin3D_BlinnPhong')
       shader = perlin3D_BP;
-    else if (controls.Shader == 'RayTracing')
+    else if (controls.Shader == 'planet')
       shader = planet
+
     if (shader == planet){
-      renderer.render(camera, shader, [
-      icosphere,
-      //square,
-      //cube,
-    ]);
-      renderer.render(camera, cloud, [
-      icosphere,
-      //square,
-      //cube,
-    ]);
+      gl.disable(gl.BLEND);
+      renderer.render(camera, shader, [icosphere,]);
+      if (controls.CloudTrig){
+        gl.enable(gl.BLEND);
+        renderer.render(camera, cloud, [icosphere,]);
+      }
     }
     else{
       renderer.render(camera, shader, [
