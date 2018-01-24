@@ -4,12 +4,12 @@ uniform mat4 u_Model;
 uniform mat4 u_ModelInvTr;
 uniform mat4 u_ViewProj; 
 
-uniform vec4 u_SunPosition;
 uniform vec4 u_OceanColor;
 uniform vec4 u_CoastColor;
 uniform vec4 u_FoliageColor;
 uniform vec4 u_MountainColor;
 uniform vec4 u_SnowColor;
+uniform vec4 u_TropicalColor;
 
 uniform vec4 u_HeightsInfo; // x : Ocean, y : Shore, z : Snow, w : Polar, 
 uniform vec2 u_TerrainInfo;
@@ -21,20 +21,20 @@ uniform float u_FloatSpeed;
 
 uniform vec3 u_CamPos;
 
+// Sun Setting
+uniform vec3 u_SunPos;
+
 in vec4 vs_Pos;             // The array of vertex positions passed to the shader
 in vec4 vs_Nor;             // The array of vertex normals passed to the shader
 in vec4 vs_Col;             // The array of vertex colors passed to the shader.
 
-const vec4 lightPos = vec4(5, 5, 3, 1);
-
-// rotation matrix for fbm octaves
-mat3 m = mat3( 0.00,  0.80,  0.60,
-              -0.80,  0.36, -0.48,
-              -0.60, -0.48,  0.64 );
-
 // Return a random direction in a circle
-vec3 random3( vec3 p ) {
-    return normalize(2.0 * fract(sin(vec3(dot(p,vec3(78.233, 127.1, 311.7)),dot(p,vec3(138.11,269.5,183.3)),dot(p,vec3(12.388, 165.24, 278.322))))*43758.5453) - 1.0);
+vec3 random3( vec3 p, float seed ) {
+    return normalize(2.0 * fract(sin(vec3(
+        dot(p,vec3(78.233, 127.1, 311.7)+vec3(23.146, 12.37, 221.574)*seed),
+        dot(p,vec3(138.11,269.5,183.3)+vec3(35.26, 6.3117, 41.74)*seed),
+        dot(p,vec3(12.388, 165.24, 278.322)+vec3(29.111, 188.327, 64.574)*seed)
+        ))*43758.5453) - 1.0);
 }
 
 float surflet3D(vec3 P, vec3 gridPoint)
@@ -48,7 +48,7 @@ float surflet3D(vec3 P, vec3 gridPoint)
     float tZ = 1.0 - 6.0 * pow(distZ, 5.0) + 15.0 * pow(distZ, 4.0) - 10.0 * pow(distZ, 3.0);
 
     // Get the random vector for the grid point
-    vec3 gradient = random3(gridPoint);
+    vec3 gradient = random3(gridPoint, u_TerrainInfo.y);
     // Get the vector from the grid point to P
     vec3 diff = P - gridPoint;
     // Get the value of our height field by dotting grid->P with our gradient
@@ -95,25 +95,13 @@ out vec4 fs_LightVec;       // The direction in which our virtual light lies, re
 out vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.
 out vec4 fs_ViewVec;
 out float fs_TerrainType;
-out float fs_Roughness;
-
-float OceanNoise(vec3 vertexPos, float oceneHeight, float noiseResult, float blendFactor)
-{
-    float relativeWaterDepth = min(1.0, (oceneHeight - noiseResult) * 15.0);
-    float oceanTime = u_Time * 100.0;
-    float shallowWaveRefraction = 4.0;
-    float waveMagnitude = 0.0002;
-    float waveLength = mix(0.007, 0.0064, blendFactor);
-    float shallowWavePhase = (vertexPos.y - noiseResult * shallowWaveRefraction) * (1.0 / waveLength);
-    float deepWavePhase    = (atan(vertexPos.z, vertexPos.x) + PerlinNoise(vertexPos.xyz * 15.0) * 0.075) * (1.5 / waveLength);
-    return (cos(shallowWavePhase + oceanTime  * 1.5) * sqrt(1.0 - relativeWaterDepth) + cos(deepWavePhase + oceanTime  * 2.0) * 2.5 * (1.0 - abs(vertexPos.y)) * (relativeWaterDepth * relativeWaterDepth)) * waveMagnitude;
-}
+out float fs_Shininess;
 
 void main()
 {
     fs_Col = vs_Col;
     fs_TerrainType = 0.0;
-    fs_Roughness = 0.0;
+    fs_Shininess = 1.0;
     vec4 vertexPos = vs_Pos;
     fs_Pos = vs_Pos;
     float oceneHeight = length(vertexPos.xyz) + u_HeightsInfo.x;
@@ -128,77 +116,81 @@ void main()
         floating = vec3(0.0);
     }    
 
+// Follow the instructions of 'Implicit Procedural Planet Generation - Report' 4.2, 4.3, 4.5
     float resolution = 4.0;
     float noiseResult = fbm(vertexPos.xyz+floating, resolution) * 2.0;  
-    noiseResult = pow(noiseResult,  u_TerrainInfo.x);
+    // Tropical
+    float heightLevel = clamp(pow(abs(vertexPos.y*5.0), 3.0), 0.005, 1.0);
+    noiseResult = pow(noiseResult,  u_TerrainInfo.x * heightLevel);
     vertexPos.xyz += localNormal * noiseResult;
     float height = length(vertexPos.xyz);
 
     //Generate different colors for different depth of the water
     float gap = clamp((1.0 - (oceneHeight - height)), 0.0, 1.0);
-    float gap5 = pow(gap, 3.0);
+    float gap3 = pow(gap, 3.0);
  
-    vec4 ocenColor = u_OceanColor  * gap5;
-    float oceneRougness = 0.15;
-    float iceRougness = 0.15;
-    float foliageRougness = 0.8;
-    float snowRougness = 0.8;
-    float shoreRougness = 0.9;
+    vec4 oceneColor = u_OceanColor  * gap3;
+
+    float oceneShininess = 0.85;
+    float iceShininess = 0.85;
+    float foliageShininess = 0.2;
+    float tropicalShininess = 0.35;
+    float snowShininess = 0.2;
+    float coastShininess = 0.1;
 
     //ocean
     if(height < oceneHeight)
     {
-        //float gap10 = pow(pow(gap, 100.0), 0.8);
-
-        //float wave = OceanNoise(vertexPos.xyz, oceneHeight, noiseResult, gap10);  
-        //vertexPos.xyz = (oceneHeight + wave) * localNormal;
         vertexPos.xyz = oceneHeight * localNormal;
 
         fs_Pos = vertexPos;
-        fs_Roughness = oceneRougness;
-        fs_Col = ocenColor;
+        fs_Shininess = oceneShininess;
+        fs_Col = oceneColor;
     }
 
     //shore
     else
     {
         fs_TerrainType = 1.0;
+        float alpha = 0.0;
         float appliedAttitude;
         if(abs(vertexPos.y) > u_HeightsInfo.w)
-            appliedAttitude = clamp((abs(vertexPos.y) - u_HeightsInfo.w) * 3.0, 0.0, 1.0);
-        else        
-           appliedAttitude = 0.0;
+            alpha = clamp((abs(vertexPos.y) - u_HeightsInfo.w)/(2.0 - u_HeightsInfo.w), 0.0, 1.0);
 
-        vec4 terrainColor = mix(u_FoliageColor, u_SnowColor, appliedAttitude);
-        float terrainRoughness = mix(foliageRougness, iceRougness, appliedAttitude);
+        //Tropical
+        vec4 mixFoliageColor = mix(u_TropicalColor, u_FoliageColor, heightLevel);
+        float mixFoliageShininess = mix(tropicalShininess, foliageShininess, heightLevel);
+
+        vec4 terrainColor = mix(mixFoliageColor, u_SnowColor, alpha);
+        float terrainShininess = mix(mixFoliageShininess, iceShininess, alpha);
         vertexPos.xyz = height * localNormal;
 
-        float oceneLine = oceneHeight + u_HeightsInfo.y;
+        float coastLine = oceneHeight + u_HeightsInfo.y * pow(heightLevel, 2.5);
         float snowLine = 1.0 + u_HeightsInfo.z;
 
-        if(height < oceneLine)
+        if(height < coastLine)
         {
             fs_Col = u_CoastColor;
-            fs_Roughness = shoreRougness;
+            fs_Shininess = coastShininess;
         }
         else if(height >= snowLine)
         {
             fs_TerrainType = 1.0;
             float alpha = clamp( (height - snowLine ) / 0.03, 0.0, 1.0);
             fs_Col = mix(terrainColor, u_SnowColor, alpha);
-            fs_Roughness = mix(terrainRoughness, snowRougness, alpha);
+            fs_Shininess = mix(terrainShininess, snowShininess, alpha);
         }        
         else
         {
-            float alpha = clamp( (height - oceneLine ) / u_HeightsInfo.y, 0.0, 1.0);
+            float alpha = clamp( (height - coastLine ) / u_HeightsInfo.y, 0.0, 1.0);
             fs_Col = mix(u_CoastColor, terrainColor, alpha);
-            fs_Roughness = mix(shoreRougness, terrainRoughness, alpha);
+            fs_Shininess = mix(coastShininess, terrainShininess, alpha);
         }
 
     }
 
     vec4 modelposition = u_Model * vertexPos;
-    vec3 sunDirection = normalize(lightPos.xyz);
+    vec3 sunDirection = normalize(u_SunPos.xyz);
     mat3 invModel = mat3(inverse(u_Model));
     sunDirection = invModel * sunDirection;
     fs_LightVec = vec4(normalize(sunDirection), 1.0);

@@ -3,10 +3,6 @@
 //#extension GL_OES_standard_derivatives : enable
 precision highp float;
 #define PI 3.1415926535897932384626422832795028841971
-#define TwoPi 6.28318530717958647692
-#define InvPi 0.31830988618379067154
-#define Inv2Pi 0.15915494309189533577
-#define Inv4Pi 0.07957747154594766788
 
 //uniform vec4 u_Color; // The color with which to render this instance of geometry.
 uniform vec4 u_SunPosition;
@@ -21,16 +17,17 @@ uniform float u_Time;
 uniform vec2 u_TerrainInfo;
 uniform float u_Octave;
 
-uniform sampler2D u_DiffuseMap;
+uniform vec4 u_SunLight; // r, g, b, intensity
 
-// rotation matrix for fbm octaves
-mat3 m = mat3( 0.00,  0.80,  0.60,
-              -0.80,  0.36, -0.48,
-              -0.60, -0.48,  0.64 );
+uniform sampler2D u_EnvMap;
 
 // Return a random direction in a circle
-vec3 random3( vec3 p ) {
-    return normalize(2.0 * fract(sin(vec3(dot(p,vec3(78.233, 127.1, 311.7)),dot(p,vec3(138.11,269.5,183.3)),dot(p,vec3(12.388, 165.24, 278.322))))*43758.5453) - 1.0);
+vec3 random3( vec3 p, float seed ) {
+    return normalize(2.0 * fract(sin(vec3(
+        dot(p,vec3(78.233, 127.1, 311.7)+vec3(23.146, 12.37, 221.574)*seed),
+        dot(p,vec3(138.11,269.5,183.3)+vec3(35.26, 6.3117, 41.74)*seed),
+        dot(p,vec3(12.388, 165.24, 278.322)+vec3(29.111, 188.327, 64.574)*seed)
+        ))*43758.5453) - 1.0);
 }
 
 float surflet3D(vec3 P, vec3 gridPoint)
@@ -44,7 +41,7 @@ float surflet3D(vec3 P, vec3 gridPoint)
     float tZ = 1.0 - 6.0 * pow(distZ, 5.0) + 15.0 * pow(distZ, 4.0) - 10.0 * pow(distZ, 3.0);
 
     // Get the random vector for the grid point
-    vec3 gradient = random3(gridPoint);
+    vec3 gradient = random3(gridPoint, u_TerrainInfo.y);
     // Get the vector from the grid point to P
     vec3 diff = P - gridPoint;
     // Get the value of our height field by dotting grid->P with our gradient
@@ -94,31 +91,20 @@ in vec4 fs_LightVec;
 in vec4 fs_Col;
 in vec4 fs_ViewVec;
 in float fs_TerrainType;
-in float fs_Roughness;
+in float fs_Shininess;
 
 out vec4 out_Col; // This is the final output color that you will see on your
 
                   // screen for the pixel that is currently being processed.
 
-float SphericalTheta(vec3 v)
-{
-    return acos(clamp(v.y, -1.0f, 1.0f));
-}
-
-float SphericalPhi(vec3 v)
-{
-    float p = atan(v.z , v.x);
-    return (p < 0.0f) ? (p + TwoPi) : p;
-}
-
+// All of the computation happen in local space
 void main()
 {
     // Material base color (before shading)
     vec3 normalVec = normalize(fs_Nor.xyz);
     vec4 diffuseColor = fs_Col;
 
-    float Roughness = fs_Roughness;
-    float energyConservation = 1.0f - Roughness;
+    float Shininess = fs_Shininess;
 
     vec3 specularTerm = vec3(0.0);
     vec3 SpecularColor = vec3(1.0, 1.0, 1.0);
@@ -136,7 +122,7 @@ void main()
     if(fs_TerrainType > 0.0)
     {
         float resolution = 4.0;
-        int LOD = int(10.0 * (1.0 - smoothstep(0.0, 6.0, log(length(u_CamPos.xyz)))));
+        int LOD = int(10.0 * (1.0 - smoothstep(0.0, u_Octave, log(length(u_CamPos.xyz)))));
         float noise = fbm(fs_Pos.xyz, resolution, LOD) * 2.0;
         noise = pow(noise,  u_TerrainInfo.x);
         vec4 vertexPos = fs_Pos;
@@ -168,7 +154,7 @@ void main()
     halfVec = normalize(halfVec);        
     //Intensity of the specular light
     float NoH = clamp(dot( normalVec, halfVec ), 0.0, 1.0);
-    specularTerm = vec3(pow(clamp(NoH, 0.0, 1.0), pow(200.0, energyConservation))) * SpecularColor * energyConservation;
+    specularTerm = vec3(pow(clamp(NoH, 0.0, 1.0), pow(200.0, Shininess))) * SpecularColor * Shininess;
 
     // }
 
@@ -182,9 +168,13 @@ void main()
 
     vec3 reflecVec = reflect(-fs_ViewVec.xyz, normalVec);
     //Envmap
-    vec2 st = vec2(SphericalPhi(reflecVec.xyz) * Inv2Pi, SphericalTheta(reflecVec.xyz) * InvPi);
-    vec4 envColor = texture(u_DiffuseMap, st) * energyConservation * 0.5;
+    vec2 st;
+    st.x = (atan(reflecVec.z, reflecVec.x) + PI) / (2.0*PI);
+    st.y = acos(reflecVec.y) / PI;
+    vec4 envColor = texture(u_EnvMap, st) * Shininess;
+
+    // vec4 envColor = texture(u_EnvMap, vN) * Shininess * 0.5;
     // Compute final shaded color
     vec4 planetColor = vec4( ( diffuseColor.rgb + specularTerm + envColor.xyz) * lightIntensity, 1.0);
-    out_Col = vec4(planetColor.xyz, 1.0);
+    out_Col = vec4(planetColor.xyz * u_SunLight.rgb * u_SunLight.a, 1.0);
 }

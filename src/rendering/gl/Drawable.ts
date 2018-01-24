@@ -6,10 +6,12 @@ abstract class Drawable {
   bufIdx: WebGLBuffer;
   bufPos: WebGLBuffer;
   bufNor: WebGLBuffer;
+  texture: WebGLTexture;
 
   idxBound: boolean = false;
   posBound: boolean = false;
   norBound: boolean = false;
+  texBound: boolean = false;
 
   abstract create() : void;
 
@@ -17,6 +19,7 @@ abstract class Drawable {
     gl.deleteBuffer(this.bufIdx);
     gl.deleteBuffer(this.bufPos);
     gl.deleteBuffer(this.bufNor);
+    gl.deleteTexture(this.texture);
   }
 
   generateIdx() {
@@ -32,6 +35,12 @@ abstract class Drawable {
   generateNor() {
     this.norBound = true;
     this.bufNor = gl.createBuffer();
+  }
+
+  generateTex(): WebGLTexture{
+    this.texBound = true;
+    this.texture = gl.createTexture();
+    return this.texture;
   }
 
   bindIdx(): boolean {
@@ -55,6 +64,16 @@ abstract class Drawable {
     return this.norBound;
   }
 
+  bindTex(): boolean {
+    if(this.texBound) {
+      gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    }
+    return this.texBound;
+  }
+
+  getTex(): WebGLTexture{
+    return this.texture;
+  }
   elemCount(): number {
     return this.count;
   }

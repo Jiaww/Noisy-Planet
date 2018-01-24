@@ -28,27 +28,31 @@ class ShaderProgram {
   unifModel: WebGLUniformLocation;
   unifModelInvTr: WebGLUniformLocation;
   unifViewProj: WebGLUniformLocation;
-  unifColor: WebGLUniformLocation;
-  unifColor2: WebGLUniformLocation;
-  unifTime: WebGLUniformLocation;
-  unifTrig: WebGLUniformLocation;
-  unifScaleSpeed: WebGLUniformLocation;
-  unifRotateSpeed: WebGLUniformLocation;
-  unifOctave: WebGLUniformLocation;
-  unifFloatSpeed: WebGLUniformLocation;
-  unifFloatAmp: WebGLUniformLocation;
-  unifResolution: WebGLUniformLocation;
-  unifCamPos: WebGLUniformLocation;
-  unifCamDir: WebGLUniformLocation;
-
-  //
   unifOceanColor: WebGLUniformLocation;
   unifSnowColor: WebGLUniformLocation;
   unifCoastColor: WebGLUniformLocation;
   unifFoliageColor: WebGLUniformLocation;
+  unifTropicalColor: WebGLUniformLocation;
   unifMountainColor: WebGLUniformLocation;
+  unifTime: WebGLUniformLocation;
+  unifTrig: WebGLUniformLocation;
   unifHeightsInfo: WebGLUniformLocation;
   unifTerrainInfo: WebGLUniformLocation;
+  unifCamPos: WebGLUniformLocation;
+  unifOctave: WebGLUniformLocation;
+  unifFloatSpeed: WebGLUniformLocation;
+  unifSunPos: WebGLUniformLocation;
+  unifSunLight: WebGLUniformLocation;
+
+// Other Settings for testing
+  unifColor: WebGLUniformLocation;
+  unifColor2: WebGLUniformLocation;
+  unifScaleSpeed: WebGLUniformLocation;
+  unifRotateSpeed: WebGLUniformLocation;
+  unifFloatAmp: WebGLUniformLocation;
+  unifResolution: WebGLUniformLocation;
+  unifCamDir: WebGLUniformLocation;
+  unifEnvMap: WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -64,30 +68,34 @@ class ShaderProgram {
     this.attrPos = gl.getAttribLocation(this.prog, "vs_Pos");
     this.attrNor = gl.getAttribLocation(this.prog, "vs_Nor");
     this.attrCol = gl.getAttribLocation(this.prog, "vs_Col");
-    this.unifModel      = gl.getUniformLocation(this.prog, "u_Model");
-    this.unifModelInvTr = gl.getUniformLocation(this.prog, "u_ModelInvTr");
-    this.unifViewProj   = gl.getUniformLocation(this.prog, "u_ViewProj");
-    this.unifColor      = gl.getUniformLocation(this.prog, "u_Color");
-    this.unifColor2     = gl.getUniformLocation(this.prog, "u_Color2");
-    this.unifTime       = gl.getUniformLocation(this.prog, "u_Time");
-    this.unifTrig       = gl.getUniformLocation(this.prog, "u_Trig");
-    this.unifScaleSpeed = gl.getUniformLocation(this.prog, "u_ScaleSpeed");
-    this.unifRotateSpeed= gl.getUniformLocation(this.prog, "u_RotateSpeed");
-    this.unifOctave     = gl.getUniformLocation(this.prog, "u_Octave");
-    this.unifFloatSpeed = gl.getUniformLocation(this.prog, "u_FloatSpeed");
-    this.unifFloatAmp   = gl.getUniformLocation(this.prog, "u_FloatAmp");
-    this.unifResolution = gl.getUniformLocation(this.prog, "u_Resolution");
-    this.unifCamPos = gl.getUniformLocation(this.prog, "u_CamPos");
-    this.unifCamDir = gl.getUniformLocation(this.prog, "u_CamDir");
-
-    //
+    this.unifModel        = gl.getUniformLocation(this.prog, "u_Model");
+    this.unifModelInvTr   = gl.getUniformLocation(this.prog, "u_ModelInvTr");
+    this.unifViewProj     = gl.getUniformLocation(this.prog, "u_ViewProj");
     this.unifOceanColor   = gl.getUniformLocation(this.prog, "u_OceanColor");
     this.unifSnowColor    = gl.getUniformLocation(this.prog, "u_SnowColor");
     this.unifCoastColor   = gl.getUniformLocation(this.prog, "u_CoastColor");
     this.unifFoliageColor = gl.getUniformLocation(this.prog, "u_FoliageColor");
+    this.unifTropicalColor= gl.getUniformLocation(this.prog, "u_TropicalColor");
     this.unifMountainColor= gl.getUniformLocation(this.prog, "u_MountainColor");
     this.unifHeightsInfo  = gl.getUniformLocation(this.prog, "u_HeightsInfo");
     this.unifTerrainInfo  = gl.getUniformLocation(this.prog, "u_TerrainInfo");
+    this.unifCamPos       = gl.getUniformLocation(this.prog, "u_CamPos");
+    this.unifOctave       = gl.getUniformLocation(this.prog, "u_Octave");
+    this.unifFloatSpeed   = gl.getUniformLocation(this.prog, "u_FloatSpeed");
+    this.unifTime         = gl.getUniformLocation(this.prog, "u_Time");
+    this.unifTrig         = gl.getUniformLocation(this.prog, "u_Trig");
+    this.unifSunPos       = gl.getUniformLocation(this.prog, "u_SunPos");
+    this.unifSunLight     = gl.getUniformLocation(this.prog, "u_SunLight"); // r,g,b, intensity
+
+    // Other Setting for testing
+    this.unifColor        = gl.getUniformLocation(this.prog, "u_Color");
+    this.unifColor2       = gl.getUniformLocation(this.prog, "u_Color2");
+    this.unifScaleSpeed   = gl.getUniformLocation(this.prog, "u_ScaleSpeed");
+    this.unifRotateSpeed  = gl.getUniformLocation(this.prog, "u_RotateSpeed");
+    this.unifFloatAmp     = gl.getUniformLocation(this.prog, "u_FloatAmp");
+    this.unifResolution   = gl.getUniformLocation(this.prog, "u_Resolution");
+    this.unifCamDir       = gl.getUniformLocation(this.prog, "u_CamDir");
+    this.unifEnvMap       = gl.getUniformLocation(this.prog, "u_EnvMap");
   }
 
   use() {
@@ -133,7 +141,7 @@ class ShaderProgram {
   }
 
   // Set Colors
-  setColors(oceanColor: vec4, snowColor: vec4, coastColor: vec4, foliageColor: vec4, mountainColor: vec4){
+  setColors(oceanColor: vec4, snowColor: vec4, coastColor: vec4, foliageColor: vec4, tropicalColor: vec4, mountainColor: vec4){
     this.use();
     if (this.unifOceanColor !== -1)
       gl.uniform4fv(this.unifOceanColor, oceanColor);
@@ -143,6 +151,8 @@ class ShaderProgram {
       gl.uniform4fv(this.unifCoastColor, coastColor);
     if (this.unifFoliageColor !== -1)
       gl.uniform4fv(this.unifFoliageColor, foliageColor);
+    if (this.unifTropicalColor !== -1)
+      gl.uniform4fv(this.unifTropicalColor, tropicalColor);
     if (this.unifMountainColor !== -1)
       gl.uniform4fv(this.unifMountainColor, mountainColor);
   }
@@ -230,6 +240,25 @@ class ShaderProgram {
     }
   }
 
+  setSunSettings(sunPos: vec3, sunLight: vec4){
+    this.use();
+    if (this.unifSunPos !== -1) {
+      gl.uniform3fv(this.unifSunPos, sunPos);
+    }
+    if (this.unifSunLight !== -1) {
+      gl.uniform4fv(this.unifSunLight, sunLight);
+    }
+  }
+  
+  setEnvMap(envMap: WebGLTexture){
+    this.use();
+    if (this.unifEnvMap !== -1) {
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, envMap);
+      gl.uniform1i(this.unifEnvMap, 0);
+    }
+  }
+  
   draw(d: Drawable) {
     this.use();
 

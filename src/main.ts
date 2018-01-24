@@ -24,18 +24,23 @@ export const controls = {
   Octave: 7.0,
   FloatSpeed: 1.0,
   FloatAmp: 1.0,
-  OceanColor: [38, 152, 232, 1.0],
+  OceanColor: [42, 159, 207, 1.0],
   OceanHeight: 1.0,
   CoastColor: [233, 200, 143, 1.0],
   CoastHeight: 0.02,
-  FoliageColor: [22, 120, 22, 1.0],  
-  MountainColor: [62, 35, 3, 1.0],
+  FoliageColor: [0, 89, 27, 1.0], 
+  TropicalColor: [168, 220, 15, 1.0], 
+  MountainColor: [77, 56, 6, 1.0],
   SnowColor: [255, 255, 255, 1.0],
   SnowHeight: 1.10,
-  PolarCaps: [155, 214, 236, 1.0],
   PolarCapsAttitude: 1.1,
   TerrainExp: 0.63,
   TerrainSeed: 0.0,
+  SunPositionX: 1.0,
+  SunPositionY: 1.0,
+  SunPositionZ: 1.0,
+  SunColor: [255, 255, 232, 1.0],
+  SunIntensity: 1.0,
 };
 
 
@@ -46,6 +51,7 @@ let cube: Cube;
 function loadScene() {
   icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, controls.tesselations);
   icosphere.create();
+  icosphere.loadTexture('envmap.jpg');
   square = new Square(vec3.fromValues(0, 0, 0));
   square.create();
   cube = new Cube(vec3.fromValues(0, 0, 0));
@@ -65,32 +71,39 @@ function main() {
   const gui = new DAT.GUI();
   gui.add(controls, 'tesselations', 0, 12).step(1);
   gui.add(controls, 'Load Scene');
-  var colorSetting = gui.addFolder('Color Setting');
-  colorSetting.addColor(controls, 'Color');
-  colorSetting.addColor(controls, 'Color2');
-  colorSetting.addColor(controls, 'OceanColor');
-  colorSetting.addColor(controls, 'SnowColor');
-  colorSetting.addColor(controls, 'CoastColor');
-  colorSetting.addColor(controls, 'MountainColor');
-  colorSetting.addColor(controls, 'FoliageColor');
-
-  var planetSetting = gui.addFolder('Planet Setting');
+  var planetSetting = gui.addFolder('Planet Setting');  
+  planetSetting.addColor(controls, 'OceanColor');
+  planetSetting.addColor(controls, 'SnowColor');
+  planetSetting.addColor(controls, 'CoastColor');
+  planetSetting.addColor(controls, 'MountainColor');
+  planetSetting.addColor(controls, 'FoliageColor');
+  planetSetting.addColor(controls, 'TropicalColor');
   planetSetting.add(controls, 'OceanHeight', 0.0, 1.50).step(0.01);
   planetSetting.add(controls, 'CoastHeight', 0.0, 0.04).step(0.01);
   planetSetting.add(controls, 'SnowHeight', 0.0, 2.00).step(0.01);
-  planetSetting.add(controls, 'PolarCapsAttitude', 0.0, 3.0).step(0.01);
+  planetSetting.add(controls, 'PolarCapsAttitude', 0.0, 2.0).step(0.01);
   planetSetting.add(controls, 'TerrainExp', 0.0, 1.0).step(0.01);
   planetSetting.add(controls, 'TerrainSeed', 0.0, 100.0).step(1.0);
   planetSetting.add(controls, 'Octave', 0.0, 10.0).step(1.0);
+
+  var sunSetting = gui.addFolder('Sun Setting');
+  sunSetting.add(controls, 'SunPositionX', -1.0, 1.0).step(0.1);
+  sunSetting.add(controls, 'SunPositionY', -1.0, 1.0).step(0.1);
+  sunSetting.add(controls, 'SunPositionZ', -1.0, 1.0).step(0.1);
+  sunSetting.addColor(controls, 'SunColor');
+  sunSetting.add(controls, 'SunIntensity', 0.0, 2.0).step(0.1);
 
   gui.add(controls, 'Shader', ['lambert', 'funny', 'perlin3D', 'perlin3D_BlinnPhong', 'planet'])
   gui.add(controls, 'CloudTrig')
   gui.add(controls, 'FunnyTrig')
   gui.add(controls, 'FloatSpeed', 0.0, 10.0).step(0.1);
-  gui.add(controls, 'ScaleSpeed', 0.1, 10.0).step(0.1);
-  gui.add(controls, 'RotateSpeed', 0, 2.0).step(0.1);
-  gui.add(controls, 'FloatSpeed', 0.0, 10.0).step(0.1);
-  gui.add(controls, 'FloatAmp', 0.0, 10.0).step(0.1);
+
+  var otherSetting = gui.addFolder('Other Setting');  
+  otherSetting.addColor(controls, 'Color');
+  otherSetting.addColor(controls, 'Color2');
+  otherSetting.add(controls, 'ScaleSpeed', 0.1, 10.0).step(0.1);
+  otherSetting.add(controls, 'RotateSpeed', 0, 2.0).step(0.1);
+  otherSetting.add(controls, 'FloatAmp', 0.0, 10.0).step(0.1);
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');

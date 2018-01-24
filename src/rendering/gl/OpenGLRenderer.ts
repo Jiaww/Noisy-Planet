@@ -1,4 +1,4 @@
-import {vec2, mat4, vec4} from 'gl-matrix';
+import {vec2, vec3, mat4, vec4} from 'gl-matrix';
 import Drawable from './Drawable';
 import Camera from '../../Camera';
 import {gl} from '../../globals';
@@ -51,13 +51,24 @@ class OpenGLRenderer {
       vec4.fromValues(controls.SnowColor[0]/255, controls.SnowColor[1]/255, controls.SnowColor[2]/255, 1),
       vec4.fromValues(controls.CoastColor[0]/255, controls.CoastColor[1]/255, controls.CoastColor[2]/255, 1),
       vec4.fromValues(controls.FoliageColor[0]/255, controls.FoliageColor[1]/255, controls.FoliageColor[2]/255, 1),
+      vec4.fromValues(controls.TropicalColor[0]/255, controls.TropicalColor[1]/255, controls.TropicalColor[2]/255, 1),
       vec4.fromValues(controls.MountainColor[0]/255, controls.MountainColor[1]/255, controls.MountainColor[2]/255, 1));
 
     prog.setHeightsInfo(vec4.fromValues(controls.OceanHeight, controls.CoastHeight, controls.SnowHeight, controls.PolarCapsAttitude));
     prog.setTerrainInfo(vec2.fromValues(controls.TerrainExp, controls.TerrainSeed));
 
+    prog.setSunSettings(
+      vec3.fromValues(controls.SunPositionX, controls.SunPositionY, controls.SunPositionZ),
+      vec4.fromValues(controls.SunColor[0]/255, controls.SunColor[1]/255, controls.SunColor[2]/255, controls.SunIntensity)
+    );
     for (let drawable of drawables) {
-      prog.draw(drawable);
+      if (drawable){
+        if (drawable.bindTex()){
+          prog.setEnvMap(drawable.getTex());
+          //console.log(drawable);
+        }
+        prog.draw(drawable);
+      }
     }
   }
 };
