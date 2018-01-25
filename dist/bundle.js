@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "dist/";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 18);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -148,21 +148,21 @@ function equals(a, b) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__gl_matrix_common__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__gl_matrix_mat2__ = __webpack_require__(19);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__gl_matrix_mat2d__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__gl_matrix_mat3__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__gl_matrix_mat3__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__gl_matrix_mat4__ = __webpack_require__(21);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__gl_matrix_quat__ = __webpack_require__(22);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__gl_matrix_vec2__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__gl_matrix_vec3__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__gl_matrix_vec4__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__gl_matrix_vec3__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__gl_matrix_vec4__ = __webpack_require__(8);
 /* unused harmony reexport glMatrix */
 /* unused harmony reexport mat2 */
 /* unused harmony reexport mat2d */
 /* unused harmony reexport mat3 */
 /* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_4__gl_matrix_mat4__; });
 /* unused harmony reexport quat */
-/* unused harmony reexport vec2 */
-/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_7__gl_matrix_vec3__; });
-/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_8__gl_matrix_vec4__; });
+/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_6__gl_matrix_vec2__; });
+/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_7__gl_matrix_vec3__; });
+/* harmony reexport (module object) */ __webpack_require__.d(__webpack_exports__, "d", function() { return __WEBPACK_IMPORTED_MODULE_8__gl_matrix_vec4__; });
 /**
  * @fileoverview gl-matrix - High performance matrix and vector operations
  * @author Brandon Jones
@@ -306,6 +306,184 @@ function normalize(out, a) {
 
 /***/ }),
 /* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_stats_js__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_dat_gui__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometry_Icosphere__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__rendering_gl_OpenGLRenderer__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__Camera__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__globals__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__ = __webpack_require__(64);
+
+
+
+
+
+
+
+
+// Define an object with application parameters and button callbacks
+// This will be referred to by dat.GUI's functions that add GUI elements.
+const controls = {
+    tesselations: 8,
+    'Load Scene': loadScene,
+    Color: [255, 0, 0],
+    Color2: [0, 255, 255],
+    Shader: 'blinn-phong',
+    OceanTrig: true,
+    CloudTrig: true,
+    FloatTrig: false,
+    _4DTrig: false,
+    EnvTrig: true,
+    ScaleSpeed: 1.0,
+    RotateSpeed: 1.0,
+    Octave: 7.0,
+    FloatSpeed: 1.0,
+    FloatAmp: 1.0,
+    OceanColor: [42, 159, 207, 1.0],
+    OceanHeight: 1.0,
+    RockColor: [65, 60, 41, 1.0],
+    CoastColor: [233, 200, 143, 1.0],
+    CoastHeight: 0.02,
+    FoliageColor: [0, 89, 27, 1.0],
+    TropicalColor: [168, 220, 15, 1.0],
+    MountainColor: [77, 56, 6, 1.0],
+    SnowColor: [255, 255, 255, 1.0],
+    SnowHeight: 1.10,
+    PolarCapsAttitude: 1.1,
+    TerrainExp: 0.63,
+    TerrainSeed: 0.0,
+    SunPositionX: 1.0,
+    SunPositionY: 1.0,
+    SunPositionZ: 1.0,
+    SunColor: [255, 255, 232, 1.0],
+    SunIntensity: 1.0,
+    HaloColor: [255, 250, 205, 1.0],
+};
+/* harmony export (immutable) */ __webpack_exports__["controls"] = controls;
+
+let icosphere;
+function loadScene() {
+    icosphere = new __WEBPACK_IMPORTED_MODULE_3__geometry_Icosphere__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0), 1, controls.tesselations);
+    icosphere.create();
+    icosphere.loadTexture('envmap.jpg');
+}
+function main() {
+    // Initial display for framerate
+    const stats = __WEBPACK_IMPORTED_MODULE_1_stats_js__();
+    stats.setMode(0);
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.left = '0px';
+    stats.domElement.style.top = '0px';
+    document.body.appendChild(stats.domElement);
+    // Add controls to the gui
+    const gui = new __WEBPACK_IMPORTED_MODULE_2_dat_gui__["GUI"]();
+    gui.add(controls, 'tesselations', 0, 12).step(1);
+    gui.add(controls, 'Load Scene');
+    var planetSetting = gui.addFolder('Planet Setting');
+    planetSetting.addColor(controls, 'OceanColor');
+    planetSetting.addColor(controls, 'RockColor');
+    planetSetting.addColor(controls, 'SnowColor');
+    planetSetting.addColor(controls, 'CoastColor');
+    planetSetting.addColor(controls, 'MountainColor');
+    planetSetting.addColor(controls, 'FoliageColor');
+    planetSetting.addColor(controls, 'TropicalColor');
+    planetSetting.addColor(controls, 'HaloColor');
+    planetSetting.add(controls, 'OceanHeight', 0.0, 1.50).step(0.002);
+    planetSetting.add(controls, 'CoastHeight', 0.0, 0.04).step(0.002);
+    planetSetting.add(controls, 'SnowHeight', 0.0, 2.00).step(0.01);
+    planetSetting.add(controls, 'PolarCapsAttitude', 0.0, 2.0).step(0.01);
+    planetSetting.add(controls, 'TerrainExp', 0.0, 1.0).step(0.01);
+    planetSetting.add(controls, 'TerrainSeed', 0.0, 100.0).step(1.0);
+    planetSetting.add(controls, 'Octave', 0.0, 10.0).step(1.0);
+    var sunSetting = gui.addFolder('Sun Setting');
+    sunSetting.add(controls, 'SunPositionX', -1.0, 1.0).step(0.1);
+    sunSetting.add(controls, 'SunPositionY', -1.0, 1.0).step(0.1);
+    sunSetting.add(controls, 'SunPositionZ', -1.0, 1.0).step(0.1);
+    sunSetting.addColor(controls, 'SunColor');
+    sunSetting.add(controls, 'SunIntensity', 0.0, 2.0).step(0.1);
+    gui.add(controls, 'Shader', ['lambert', 'blinn-phong']);
+    gui.add(controls, 'OceanTrig');
+    gui.add(controls, 'CloudTrig');
+    gui.add(controls, 'FloatTrig');
+    gui.add(controls, 'FloatSpeed', 0.0, 10.0).step(0.1);
+    gui.add(controls, '_4DTrig');
+    gui.add(controls, 'EnvTrig');
+    // get canvas and webgl context
+    const canvas = document.getElementById('canvas');
+    const gl = canvas.getContext('webgl2');
+    if (!gl) {
+        alert('WebGL 2 not supported!');
+    }
+    // `setGL` is a function imported above which sets the value of `gl` in the `globals.ts` module.
+    // Later, we can import `gl` from `globals.ts` to access it
+    Object(__WEBPACK_IMPORTED_MODULE_6__globals__["b" /* setGL */])(gl);
+    // Initial call to load scene
+    loadScene();
+    const camera = new __WEBPACK_IMPORTED_MODULE_5__Camera__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 5), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0, 0, 0));
+    const renderer = new __WEBPACK_IMPORTED_MODULE_4__rendering_gl_OpenGLRenderer__["a" /* default */](canvas);
+    renderer.setClearColor(0.0, 0.0, 0.00, 1);
+    gl.enable(gl.DEPTH_TEST);
+    const planet = new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["b" /* default */]([
+        new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(65)),
+        new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(66)),
+    ]);
+    const ocean = new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["b" /* default */]([
+        new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(67)),
+        new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(68)),
+    ]);
+    const cloud = new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["b" /* default */]([
+        new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(69)),
+        new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(70)),
+    ]);
+    // This function will be called every frame
+    function tick() {
+        camera.update();
+        stats.begin();
+        gl.viewport(0, 0, window.innerWidth, window.innerHeight);
+        renderer.clear();
+        gl.enable(gl.DEPTH_TEST);
+        gl.enable(gl.CULL_FACE);
+        gl.cullFace(gl.FRONT);
+        let shader;
+        gl.disable(gl.BLEND);
+        renderer.render(camera, planet, [icosphere,]);
+        if (controls.OceanTrig) {
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+            gl.enable(gl.BLEND);
+            renderer.render(camera, ocean, [icosphere,]);
+        }
+        if (controls.CloudTrig) {
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+            gl.enable(gl.BLEND);
+            renderer.render(camera, cloud, [icosphere,]);
+        }
+        stats.end();
+        // Tell the browser to call `tick` again whenever it renders a new frame
+        requestAnimationFrame(tick);
+    }
+    window.addEventListener('resize', function () {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.setAspectRatio(window.innerWidth / window.innerHeight);
+        camera.updateProjectionMatrix();
+    }, false);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.setAspectRatio(window.innerWidth / window.innerHeight);
+    camera.updateProjectionMatrix();
+    // Start the render loop
+    tick();
+}
+main();
+
+
+/***/ }),
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1112,7 +1290,7 @@ const sub = subtract;
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1952,7 +2130,7 @@ const forEach = (function() {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2614,7 +2792,7 @@ const forEach = (function() {
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2623,7 +2801,7 @@ const forEach = (function() {
 module.exports = createFilteredVector
 
 var cubicHermite = __webpack_require__(37)
-var bsearch = __webpack_require__(9)
+var bsearch = __webpack_require__(10)
 
 function clamp(lo, hi, x) {
   return Math.min(hi, Math.max(lo, x))
@@ -2912,7 +3090,7 @@ function createFilteredVector(initState, initVelocity, initTime) {
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2979,7 +3157,7 @@ module.exports = {
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports) {
 
 module.exports = cross;
@@ -3003,7 +3181,7 @@ function cross(out, a, b) {
 }
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports) {
 
 module.exports = dot;
@@ -3020,10 +3198,10 @@ function dot(a, b) {
 }
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var identity = __webpack_require__(13);
+var identity = __webpack_require__(14);
 
 module.exports = lookAt;
 
@@ -3115,7 +3293,7 @@ function lookAt(out, eye, center, up) {
 };
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports) {
 
 module.exports = identity;
@@ -3147,7 +3325,7 @@ function identity(out) {
 };
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports) {
 
 module.exports = translate;
@@ -3190,7 +3368,7 @@ function translate(out, a, v) {
 };
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports) {
 
 module.exports = create;
@@ -3222,7 +3400,7 @@ function create() {
 };
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports) {
 
 module.exports = scale;
@@ -3258,7 +3436,7 @@ function scale(out, a, v) {
 };
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports) {
 
 module.exports = determinant;
@@ -3291,98 +3469,6 @@ function determinant(a) {
     // Calculate the determinant
     return b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 };
-
-/***/ }),
-/* 18 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_stats_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_stats_js__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui__ = __webpack_require__(25);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_dat_gui___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_dat_gui__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__geometry_Icosphere__ = __webpack_require__(28);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__rendering_gl_OpenGLRenderer__ = __webpack_require__(30);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__Camera__ = __webpack_require__(31);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__globals__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__ = __webpack_require__(64);
-
-
-
-
-
-
-
-
-// Define an object with application parameters and button callbacks
-const controls = {
-    tesselations: 5,
-    'Load Scene': loadScene,
-};
-let icosphere;
-function loadScene() {
-    icosphere = new __WEBPACK_IMPORTED_MODULE_3__geometry_Icosphere__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec3 */].fromValues(0, 0, 0), 1, controls.tesselations);
-    icosphere.create();
-}
-function main() {
-    // Initial display for framerate
-    const stats = __WEBPACK_IMPORTED_MODULE_1_stats_js__();
-    stats.setMode(0);
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.left = '0px';
-    stats.domElement.style.top = '0px';
-    document.body.appendChild(stats.domElement);
-    // Add controls to the gui
-    const gui = new __WEBPACK_IMPORTED_MODULE_2_dat_gui__["GUI"]();
-    gui.add(controls, 'tesselations', 0, 8).step(1);
-    gui.add(controls, 'Load Scene');
-    // get canvas and webgl context
-    const canvas = document.getElementById('canvas');
-    const gl = canvas.getContext('webgl2');
-    if (!gl) {
-        alert('WebGL 2 not supported!');
-    }
-    // `setGL` is a function imported above which sets the value of `gl` in the `globals.ts` module.
-    // Later, we can import `gl` from `globals.ts` to access it
-    Object(__WEBPACK_IMPORTED_MODULE_6__globals__["b" /* setGL */])(gl);
-    // Initial call to load scene
-    loadScene();
-    const camera = new __WEBPACK_IMPORTED_MODULE_5__Camera__["a" /* default */](__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec3 */].fromValues(0, 0, 5), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec3 */].fromValues(0, 0, 0));
-    const renderer = new __WEBPACK_IMPORTED_MODULE_4__rendering_gl_OpenGLRenderer__["a" /* default */](canvas);
-    renderer.setClearColor(0.2, 0.2, 0.2, 1);
-    gl.enable(gl.DEPTH_TEST);
-    const lambert = new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["b" /* default */]([
-        new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(65)),
-        new __WEBPACK_IMPORTED_MODULE_7__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(66)),
-    ]);
-    // This function will be called every frame
-    function tick() {
-        camera.update();
-        stats.begin();
-        gl.viewport(0, 0, window.innerWidth, window.innerHeight);
-        renderer.clear();
-        renderer.render(camera, lambert, [
-            icosphere,
-        ]);
-        stats.end();
-        // Tell the browser to call `tick` again whenever it renders a new frame
-        requestAnimationFrame(tick);
-    }
-    window.addEventListener('resize', function () {
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        camera.setAspectRatio(window.innerWidth / window.innerHeight);
-        camera.updateProjectionMatrix();
-    }, false);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.setAspectRatio(window.innerWidth / window.innerHeight);
-    camera.updateProjectionMatrix();
-    // Start the render loop
-    tick();
-}
-main();
-
 
 /***/ }),
 /* 19 */
@@ -6113,9 +6199,9 @@ const sub = subtract;
 /* unused harmony export fromEuler */
 /* unused harmony export str */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__mat3__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__vec3__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__vec4__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__mat3__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__vec3__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__vec4__ = __webpack_require__(8);
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -6787,40 +6873,41 @@ const setAxes = (function() {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* unused harmony export create */
-/* unused harmony export clone */
-/* unused harmony export fromValues */
-/* unused harmony export copy */
-/* unused harmony export set */
-/* unused harmony export add */
-/* unused harmony export subtract */
-/* unused harmony export multiply */
-/* unused harmony export divide */
-/* unused harmony export ceil */
-/* unused harmony export floor */
-/* unused harmony export min */
-/* unused harmony export max */
-/* unused harmony export round */
-/* unused harmony export scale */
-/* unused harmony export scaleAndAdd */
-/* unused harmony export distance */
-/* unused harmony export squaredDistance */
-/* unused harmony export length */
-/* unused harmony export squaredLength */
-/* unused harmony export negate */
-/* unused harmony export inverse */
-/* unused harmony export normalize */
-/* unused harmony export dot */
-/* unused harmony export cross */
-/* unused harmony export lerp */
-/* unused harmony export random */
-/* unused harmony export transformMat2 */
-/* unused harmony export transformMat2d */
-/* unused harmony export transformMat3 */
-/* unused harmony export transformMat4 */
-/* unused harmony export str */
-/* unused harmony export exactEquals */
-/* unused harmony export equals */
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (immutable) */ __webpack_exports__["create"] = create;
+/* harmony export (immutable) */ __webpack_exports__["clone"] = clone;
+/* harmony export (immutable) */ __webpack_exports__["fromValues"] = fromValues;
+/* harmony export (immutable) */ __webpack_exports__["copy"] = copy;
+/* harmony export (immutable) */ __webpack_exports__["set"] = set;
+/* harmony export (immutable) */ __webpack_exports__["add"] = add;
+/* harmony export (immutable) */ __webpack_exports__["subtract"] = subtract;
+/* harmony export (immutable) */ __webpack_exports__["multiply"] = multiply;
+/* harmony export (immutable) */ __webpack_exports__["divide"] = divide;
+/* harmony export (immutable) */ __webpack_exports__["ceil"] = ceil;
+/* harmony export (immutable) */ __webpack_exports__["floor"] = floor;
+/* harmony export (immutable) */ __webpack_exports__["min"] = min;
+/* harmony export (immutable) */ __webpack_exports__["max"] = max;
+/* harmony export (immutable) */ __webpack_exports__["round"] = round;
+/* harmony export (immutable) */ __webpack_exports__["scale"] = scale;
+/* harmony export (immutable) */ __webpack_exports__["scaleAndAdd"] = scaleAndAdd;
+/* harmony export (immutable) */ __webpack_exports__["distance"] = distance;
+/* harmony export (immutable) */ __webpack_exports__["squaredDistance"] = squaredDistance;
+/* harmony export (immutable) */ __webpack_exports__["length"] = length;
+/* harmony export (immutable) */ __webpack_exports__["squaredLength"] = squaredLength;
+/* harmony export (immutable) */ __webpack_exports__["negate"] = negate;
+/* harmony export (immutable) */ __webpack_exports__["inverse"] = inverse;
+/* harmony export (immutable) */ __webpack_exports__["normalize"] = normalize;
+/* harmony export (immutable) */ __webpack_exports__["dot"] = dot;
+/* harmony export (immutable) */ __webpack_exports__["cross"] = cross;
+/* harmony export (immutable) */ __webpack_exports__["lerp"] = lerp;
+/* harmony export (immutable) */ __webpack_exports__["random"] = random;
+/* harmony export (immutable) */ __webpack_exports__["transformMat2"] = transformMat2;
+/* harmony export (immutable) */ __webpack_exports__["transformMat2d"] = transformMat2d;
+/* harmony export (immutable) */ __webpack_exports__["transformMat3"] = transformMat3;
+/* harmony export (immutable) */ __webpack_exports__["transformMat4"] = transformMat4;
+/* harmony export (immutable) */ __webpack_exports__["str"] = str;
+/* harmony export (immutable) */ __webpack_exports__["exactEquals"] = exactEquals;
+/* harmony export (immutable) */ __webpack_exports__["equals"] = equals;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__common__ = __webpack_require__(0);
 /* Copyright (c) 2015, Brandon Jones, Colin MacKenzie IV.
 
@@ -7329,7 +7416,7 @@ function equals(a, b) {
  * @function
  */
 const len = length;
-/* unused harmony export len */
+/* harmony export (immutable) */ __webpack_exports__["len"] = len;
 
 
 /**
@@ -7337,7 +7424,7 @@ const len = length;
  * @function
  */
 const sub = subtract;
-/* unused harmony export sub */
+/* harmony export (immutable) */ __webpack_exports__["sub"] = sub;
 
 
 /**
@@ -7345,7 +7432,7 @@ const sub = subtract;
  * @function
  */
 const mul = multiply;
-/* unused harmony export mul */
+/* harmony export (immutable) */ __webpack_exports__["mul"] = mul;
 
 
 /**
@@ -7353,7 +7440,7 @@ const mul = multiply;
  * @function
  */
 const div = divide;
-/* unused harmony export div */
+/* harmony export (immutable) */ __webpack_exports__["div"] = div;
 
 
 /**
@@ -7361,7 +7448,7 @@ const div = divide;
  * @function
  */
 const dist = distance;
-/* unused harmony export dist */
+/* harmony export (immutable) */ __webpack_exports__["dist"] = dist;
 
 
 /**
@@ -7369,7 +7456,7 @@ const dist = distance;
  * @function
  */
 const sqrDist = squaredDistance;
-/* unused harmony export sqrDist */
+/* harmony export (immutable) */ __webpack_exports__["sqrDist"] = sqrDist;
 
 
 /**
@@ -7377,7 +7464,7 @@ const sqrDist = squaredDistance;
  * @function
  */
 const sqrLen = squaredLength;
-/* unused harmony export sqrLen */
+/* harmony export (immutable) */ __webpack_exports__["sqrLen"] = sqrLen;
 
 
 /**
@@ -7420,7 +7507,7 @@ const forEach = (function() {
     return a;
   };
 })();
-/* unused harmony export forEach */
+/* harmony export (immutable) */ __webpack_exports__["forEach"] = forEach;
 
 
 
@@ -11884,7 +11971,46 @@ class Icosphere extends __WEBPACK_IMPORTED_MODULE_1__rendering_gl_Drawable__["a"
         super(); // Call the constructor of the super class. This is required.
         this.radius = radius;
         this.subdivisions = subdivisions;
-        this.center = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec4 */].fromValues(center[0], center[1], center[2], 1);
+        this.center = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(center[0], center[1], center[2], 1);
+    }
+    loadTexture(url) {
+        const texture = this.generateTex();
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bindTexture(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].TEXTURE_2D, texture);
+        // Because images have to be download over the internet
+        // they might take a moment until they are ready.
+        // Until then put a single pixel in the texture so we can
+        // use it immediately. When the image has finished downloading
+        // we'll update the texture with the contents of the image.
+        const level = 0;
+        const internalFormat = __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].RGBA;
+        const width = 1;
+        const height = 1;
+        const border = 0;
+        const srcFormat = __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].RGBA;
+        const srcType = __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].UNSIGNED_BYTE;
+        const pixel = new Uint8Array([0, 0, 255, 255]); // opaque blue
+        __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].texImage2D(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].TEXTURE_2D, level, internalFormat, width, height, border, srcFormat, srcType, pixel);
+        const image = new Image();
+        image.onload = function () {
+            __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].bindTexture(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].TEXTURE_2D, texture);
+            __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].texImage2D(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].TEXTURE_2D, level, internalFormat, srcFormat, srcType, image);
+            // WebGL1 has different requirements for power of 2 images
+            // vs non power of 2 images so check if the image is a
+            // power of 2 in both dimensions.
+            //if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+            //   // Yes, it's a power of 2. Generate mips.
+            //   gl.generateMipmap(gl.TEXTURE_2D);
+            //} else {
+            // No, it's not a power of 2. Turn of mips and set
+            // wrapping to clamp to edge
+            __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].texParameteri(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].TEXTURE_WRAP_S, __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].CLAMP_TO_EDGE);
+            __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].texParameteri(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].TEXTURE_WRAP_T, __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].CLAMP_TO_EDGE);
+            __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].texParameteri(__WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].TEXTURE_MIN_FILTER, __WEBPACK_IMPORTED_MODULE_2__globals__["a" /* gl */].LINEAR);
+            //}
+        };
+        image.src = url;
+        this.texture = texture;
+        console.log(this.texture);
     }
     create() {
         const X = 0.525731112119133606;
@@ -11965,8 +12091,8 @@ class Icosphere extends __WEBPACK_IMPORTED_MODULE_1__rendering_gl_Drawable__["a"
                 let key = [v0, v1].sort().join('_');
                 if (!edgeMap.has(key)) {
                     let midpoint = new Float32Array(buffer0, vertexByteOffset + vertices.length * 4 * Float32Array.BYTES_PER_ELEMENT, 4);
-                    __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec4 */].add(midpoint, vertices[v0], vertices[v1]);
-                    __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec4 */].normalize(midpoint, midpoint);
+                    __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].add(midpoint, vertices[v0], vertices[v1]);
+                    __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].normalize(midpoint, midpoint);
                     edgeMap.set(key, vertices.length);
                     vertices.push(midpoint);
                 }
@@ -12003,7 +12129,7 @@ class Icosphere extends __WEBPACK_IMPORTED_MODULE_1__rendering_gl_Drawable__["a"
         // Populate one position for each normal
         for (let i = 0; i < vertices.length; ++i) {
             let pos = new Float32Array(buffer0, positionByteOffset + i * 4 * Float32Array.BYTES_PER_ELEMENT, 4);
-            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec4 */].scaleAndAdd(pos, this.center, vertices[i], this.radius);
+            __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].scaleAndAdd(pos, this.center, vertices[i], this.radius);
         }
         this.buffer = buffer0;
         this.indices = new Uint32Array(this.buffer, indexByteOffset, triangles.length * 3);
@@ -12039,11 +12165,13 @@ class Drawable {
         this.idxBound = false;
         this.posBound = false;
         this.norBound = false;
+        this.texBound = false;
     }
     destory() {
         __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufIdx);
         __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufPos);
         __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteBuffer(this.bufNor);
+        __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].deleteTexture(this.texture);
     }
     generateIdx() {
         this.idxBound = true;
@@ -12056,6 +12184,11 @@ class Drawable {
     generateNor() {
         this.norBound = true;
         this.bufNor = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createBuffer();
+    }
+    generateTex() {
+        this.texBound = true;
+        this.texture = __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].createTexture();
+        return this.texture;
     }
     bindIdx() {
         if (this.idxBound) {
@@ -12075,6 +12208,15 @@ class Drawable {
         }
         return this.norBound;
     }
+    bindTex() {
+        if (this.texBound) {
+            __WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].bindTexture(__WEBPACK_IMPORTED_MODULE_0__globals__["a" /* gl */].TEXTURE_2D, this.texture);
+        }
+        return this.texBound;
+    }
+    getTex() {
+        return this.texture;
+    }
     elemCount() {
         return this.count;
     }
@@ -12093,6 +12235,8 @@ class Drawable {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_gl_matrix__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__globals__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__main__ = __webpack_require__(5);
+
 
 
 // In this file, `gl` is accessible because it is imported above
@@ -12113,14 +12257,41 @@ class OpenGLRenderer {
     render(camera, prog, drawables) {
         let model = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
         let viewProj = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].create();
-        let color = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec4 */].fromValues(1, 0, 0, 1);
+        let color = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].Color[0] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].Color[1] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].Color[2] / 255, 1);
+        let color2 = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].Color2[0] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].Color2[1] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].Color2[2] / 255, 1);
+        var d = new Date();
+        let time = (d.getTime() % 5000000) / 30000.0;
         __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].identity(model);
         __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["a" /* mat4 */].multiply(viewProj, camera.projectionMatrix, camera.viewMatrix);
         prog.setModelMatrix(model);
         prog.setViewProjMatrix(viewProj);
-        prog.setGeometryColor(color);
+        prog.updateTime(time);
+        prog.setTrig(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].FloatTrig, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].EnvTrig);
+        prog.setOctave(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].Octave);
+        prog.setFloatSpeed(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].FloatSpeed);
+        //prog.setResolution(vec2.fromValues(window.innerWidth, window.innerHeight));
+        prog.setCamInfo(camera.position);
+        prog.setColors(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].OceanColor[0] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].OceanColor[1] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].OceanColor[2] / 255, 1), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].RockColor[0] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].RockColor[1] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].RockColor[2] / 255, 1), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].SnowColor[0] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].SnowColor[1] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].SnowColor[2] / 255, 1), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].CoastColor[0] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].CoastColor[1] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].CoastColor[2] / 255, 1), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].FoliageColor[0] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].FoliageColor[1] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].FoliageColor[2] / 255, 1), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].TropicalColor[0] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].TropicalColor[1] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].TropicalColor[2] / 255, 1), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].MountainColor[0] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].MountainColor[1] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].MountainColor[2] / 255, 1), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].HaloColor[0] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].HaloColor[1] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].HaloColor[2] / 255, 1));
+        prog.setHeightsInfo(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].OceanHeight, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].CoastHeight, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].SnowHeight, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].PolarCapsAttitude));
+        if (__WEBPACK_IMPORTED_MODULE_2__main__["controls"]._4DTrig)
+            // Set Terrain seed according to u_Time
+            prog.setTerrainInfo(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].TerrainExp, Math.floor(time * 20)));
+        else
+            prog.setTerrainInfo(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].TerrainExp, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].TerrainSeed));
+        prog.setSunSettings(__WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].SunPositionX, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].SunPositionY, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].SunPositionZ), __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec4 */].fromValues(__WEBPACK_IMPORTED_MODULE_2__main__["controls"].SunColor[0] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].SunColor[1] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].SunColor[2] / 255, __WEBPACK_IMPORTED_MODULE_2__main__["controls"].SunIntensity));
+        if (__WEBPACK_IMPORTED_MODULE_2__main__["controls"].Shader == 'lambert')
+            prog.setShader(0.0);
+        else
+            //Blinn-Phong
+            prog.setShader(1.0);
         for (let drawable of drawables) {
-            prog.draw(drawable);
+            if (drawable) {
+                if (drawable.bindTex()) {
+                    prog.setEnvMap(drawable.getTex());
+                    //console.log(drawable);
+                }
+                prog.draw(drawable);
+            }
         }
     }
 }
@@ -12146,15 +12317,15 @@ class Camera {
         this.aspectRatio = 1;
         this.near = 0.1;
         this.far = 1000;
-        this.position = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec3 */].create();
-        this.direction = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec3 */].create();
-        this.target = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec3 */].create();
-        this.up = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec3 */].create();
+        this.position = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].create();
+        this.direction = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].create();
+        this.target = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].create();
+        this.up = __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].create();
         this.controls = __WEBPACK_IMPORTED_MODULE_0_3d_view_controls__(document.getElementById('canvas'), {
             eye: position,
             center: target,
         });
-        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec3 */].add(this.target, this.position, this.direction);
+        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].add(this.target, this.position, this.direction);
         __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["a" /* mat4 */].lookAt(this.viewMatrix, this.controls.eye, this.controls.center, this.controls.up);
     }
     setAspectRatio(aspectRatio) {
@@ -12165,7 +12336,8 @@ class Camera {
     }
     update() {
         this.controls.tick();
-        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["b" /* vec3 */].add(this.target, this.position, this.direction);
+        __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["c" /* vec3 */].add(this.target, this.position, this.direction);
+        this.position = this.controls.eye;
         __WEBPACK_IMPORTED_MODULE_1_gl_matrix__["a" /* mat4 */].lookAt(this.viewMatrix, this.controls.eye, this.controls.center, this.controls.up);
     }
 }
@@ -12585,12 +12757,12 @@ function createViewController(options) {
 
 module.exports = createTurntableController
 
-var filterVector = __webpack_require__(8)
+var filterVector = __webpack_require__(9)
 var invert44     = __webpack_require__(3)
 var rotateM      = __webpack_require__(38)
-var cross        = __webpack_require__(10)
+var cross        = __webpack_require__(11)
 var normalize3   = __webpack_require__(4)
-var dot3         = __webpack_require__(11)
+var dot3         = __webpack_require__(12)
 
 function len3(x, y, z) {
   return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2))
@@ -13277,8 +13449,8 @@ function rotate(out, a, rad, axis) {
 
 module.exports = createOrbitController
 
-var filterVector  = __webpack_require__(8)
-var lookAt        = __webpack_require__(12)
+var filterVector  = __webpack_require__(9)
+var lookAt        = __webpack_require__(13)
 var mat4FromQuat  = __webpack_require__(40)
 var invert44      = __webpack_require__(3)
 var quatFromFrame = __webpack_require__(41)
@@ -13773,15 +13945,15 @@ function quatFromFrame(
 "use strict";
 
 
-var bsearch   = __webpack_require__(9)
+var bsearch   = __webpack_require__(10)
 var m4interp  = __webpack_require__(43)
 var invert44  = __webpack_require__(3)
 var rotateX   = __webpack_require__(55)
 var rotateY   = __webpack_require__(56)
 var rotateZ   = __webpack_require__(57)
-var lookAt    = __webpack_require__(12)
-var translate = __webpack_require__(14)
-var scale     = __webpack_require__(16)
+var lookAt    = __webpack_require__(13)
+var translate = __webpack_require__(15)
+var scale     = __webpack_require__(17)
 var normalize = __webpack_require__(4)
 
 var DEFAULT_CENTER = [0,0,0]
@@ -13979,7 +14151,7 @@ var lerp = __webpack_require__(44)
 
 var recompose = __webpack_require__(45)
 var decompose = __webpack_require__(48)
-var determinant = __webpack_require__(17)
+var determinant = __webpack_require__(18)
 var slerp = __webpack_require__(53)
 
 var state0 = state()
@@ -14069,11 +14241,11 @@ From: http://www.w3.org/TR/css3-transforms/#recomposing-to-a-3d-matrix
 */
 
 var mat4 = {
-    identity: __webpack_require__(13),
-    translate: __webpack_require__(14),
+    identity: __webpack_require__(14),
+    translate: __webpack_require__(15),
     multiply: __webpack_require__(46),
-    create: __webpack_require__(15),
-    scale: __webpack_require__(16),
+    create: __webpack_require__(16),
+    scale: __webpack_require__(17),
     fromRotationTranslation: __webpack_require__(47)
 }
 
@@ -14246,16 +14418,16 @@ http://www.w3.org/TR/css3-transforms/#decomposing-a-3d-matrix
 
 var normalize = __webpack_require__(49)
 
-var create = __webpack_require__(15)
+var create = __webpack_require__(16)
 var clone = __webpack_require__(50)
-var determinant = __webpack_require__(17)
+var determinant = __webpack_require__(18)
 var invert = __webpack_require__(3)
 var transpose = __webpack_require__(51)
 var vec3 = {
     length: __webpack_require__(52),
     normalize: __webpack_require__(4),
-    dot: __webpack_require__(11),
-    cross: __webpack_require__(10)
+    dot: __webpack_require__(12),
+    cross: __webpack_require__(11)
 }
 
 var tmp = create()
@@ -15215,7 +15387,25 @@ class ShaderProgram {
         this.unifModel = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Model");
         this.unifModelInvTr = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_ModelInvTr");
         this.unifViewProj = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_ViewProj");
-        this.unifColor = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Color");
+        this.unifOceanColor = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_OceanColor");
+        this.unifRockColor = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_RockColor");
+        this.unifSnowColor = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_SnowColor");
+        this.unifCoastColor = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_CoastColor");
+        this.unifFoliageColor = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_FoliageColor");
+        this.unifTropicalColor = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_TropicalColor");
+        this.unifMountainColor = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_MountainColor");
+        this.unifHaloColor = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_HaloColor");
+        this.unifHeightsInfo = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_HeightsInfo");
+        this.unifTerrainInfo = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_TerrainInfo");
+        this.unifCamPos = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_CamPos");
+        this.unifOctave = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Octave");
+        this.unifFloatSpeed = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_FloatSpeed");
+        this.unifTime = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Time");
+        this.unifTrig = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Trig");
+        this.unifSunPos = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_SunPos");
+        this.unifSunLight = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_SunLight"); // r,g,b, intensity
+        this.unifEnvMap = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_EnvMap");
+        this.unifShader = __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].getUniformLocation(this.prog, "u_Shader");
     }
     use() {
         if (activeProgram !== this.prog) {
@@ -15241,10 +15431,94 @@ class ShaderProgram {
             __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniformMatrix4fv(this.unifViewProj, false, vp);
         }
     }
-    setGeometryColor(color) {
+    // Set Colors
+    setColors(oceanColor, rockColor, snowColor, coastColor, foliageColor, tropicalColor, mountainColor, haloColor) {
         this.use();
-        if (this.unifColor !== -1) {
-            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform4fv(this.unifColor, color);
+        if (this.unifOceanColor !== -1)
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform4fv(this.unifOceanColor, oceanColor);
+        if (this.unifRockColor !== -1)
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform4fv(this.unifRockColor, rockColor);
+        if (this.unifSnowColor !== -1)
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform4fv(this.unifSnowColor, snowColor);
+        if (this.unifCoastColor !== -1)
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform4fv(this.unifCoastColor, coastColor);
+        if (this.unifFoliageColor !== -1)
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform4fv(this.unifFoliageColor, foliageColor);
+        if (this.unifTropicalColor !== -1)
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform4fv(this.unifTropicalColor, tropicalColor);
+        if (this.unifMountainColor !== -1)
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform4fv(this.unifMountainColor, mountainColor);
+        if (this.unifHaloColor !== -1)
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform4fv(this.unifHaloColor, haloColor);
+    }
+    setHeightsInfo(heightsInfo) {
+        this.use();
+        if (this.unifHeightsInfo !== -1)
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform4fv(this.unifHeightsInfo, heightsInfo);
+    }
+    setTerrainInfo(terrainInfo) {
+        this.use();
+        if (this.unifHeightsInfo !== -1)
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform2fv(this.unifTerrainInfo, terrainInfo);
+    }
+    updateTime(time) {
+        this.use();
+        if (this.unifTime !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1f(this.unifTime, time);
+        }
+    }
+    setTrig(funnyTrig, envTrig) {
+        this.use();
+        if (this.unifTrig !== -1) {
+            let trigVec = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* vec2 */].fromValues(0.0, 0.0);
+            if (funnyTrig) {
+                trigVec[0] = 1.0;
+            }
+            if (envTrig) {
+                trigVec[1] = 1.0;
+            }
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform2fv(this.unifTrig, trigVec);
+        }
+    }
+    setFloatSpeed(floatSpeed) {
+        this.use();
+        if (this.unifFloatSpeed !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1f(this.unifFloatSpeed, floatSpeed);
+        }
+    }
+    setOctave(octave) {
+        this.use();
+        if (this.unifOctave !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1f(this.unifOctave, octave);
+        }
+    }
+    setCamInfo(camPos) {
+        this.use();
+        if (this.unifCamPos !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform3fv(this.unifCamPos, camPos);
+        }
+    }
+    setSunSettings(sunPos, sunLight) {
+        this.use();
+        if (this.unifSunPos !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform3fv(this.unifSunPos, sunPos);
+        }
+        if (this.unifSunLight !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform4fv(this.unifSunLight, sunLight);
+        }
+    }
+    setEnvMap(envMap) {
+        this.use();
+        if (this.unifEnvMap !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].activeTexture(__WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].TEXTURE0);
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].bindTexture(__WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].TEXTURE_2D, envMap);
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1i(this.unifEnvMap, 0);
+        }
+    }
+    setShader(shaderNum) {
+        this.use();
+        if (this.unifShader !== -1) {
+            __WEBPACK_IMPORTED_MODULE_1__globals__["a" /* gl */].uniform1f(this.unifShader, shaderNum);
         }
     }
     draw(d) {
@@ -15273,13 +15547,37 @@ class ShaderProgram {
 /* 65 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\n\n//This is a vertex shader. While it is called a \"shader\" due to outdated conventions, this file\n//is used to apply matrix transformations to the arrays of vertex data passed to it.\n//Since this code is run on your GPU, each vertex is transformed simultaneously.\n//If it were run on your CPU, each vertex would have to be processed in a FOR loop, one at a time.\n//This simultaneous transformation allows your program to run much faster, especially when rendering\n//geometry with millions of vertices.\n\nuniform mat4 u_Model;       // The matrix that defines the transformation of the\n                            // object we're rendering. In this assignment,\n                            // this will be the result of traversing your scene graph.\n\nuniform mat4 u_ModelInvTr;  // The inverse transpose of the model matrix.\n                            // This allows us to transform the object's normals properly\n                            // if the object has been non-uniformly scaled.\n\nuniform mat4 u_ViewProj;    // The matrix that defines the camera's transformation.\n                            // We've written a static matrix for you to use for HW2,\n                            // but in HW3 you'll have to generate one yourself\n\nin vec4 vs_Pos;             // The array of vertex positions passed to the shader\n\nin vec4 vs_Nor;             // The array of vertex normals passed to the shader\n\nin vec4 vs_Col;             // The array of vertex colors passed to the shader.\n\nout vec4 fs_Nor;            // The array of normals that has been transformed by u_ModelInvTr. This is implicitly passed to the fragment shader.\nout vec4 fs_LightVec;       // The direction in which our virtual light lies, relative to each vertex. This is implicitly passed to the fragment shader.\nout vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.\n\nconst vec4 lightPos = vec4(5, 5, 3, 1); //The position of our virtual light, which is used to compute the shading of\n                                        //the geometry in the fragment shader.\n\nvoid main()\n{\n    fs_Col = vs_Col;                         // Pass the vertex colors to the fragment shader for interpolation\n\n    mat3 invTranspose = mat3(u_ModelInvTr);\n    fs_Nor = vec4(invTranspose * vec3(vs_Nor), 0);          // Pass the vertex normals to the fragment shader for interpolation.\n                                                            // Transform the geometry's normals by the inverse transpose of the\n                                                            // model matrix. This is necessary to ensure the normals remain\n                                                            // perpendicular to the surface after the surface is transformed by\n                                                            // the model matrix.\n\n\n    vec4 modelposition = u_Model * vs_Pos;   // Temporarily store the transformed vertex positions for use below\n\n    fs_LightVec = lightPos - modelposition;  // Compute the direction in which the light source lies\n\n    gl_Position = u_ViewProj * modelposition;// gl_Position is a built-in variable of OpenGL which is\n                                             // used to render the final positions of the geometry's vertices\n}\n"
+module.exports = "#version 300 es\r\n\r\nuniform mat4 u_Model; \r\nuniform mat4 u_ModelInvTr;\r\nuniform mat4 u_ViewProj; \r\n\r\nuniform vec4 u_OceanColor;\r\nuniform vec4 u_RockColor;\r\nuniform vec4 u_CoastColor;\r\nuniform vec4 u_FoliageColor;\r\nuniform vec4 u_MountainColor;\r\nuniform vec4 u_SnowColor;\r\nuniform vec4 u_TropicalColor;\r\n\r\nuniform vec4 u_HeightsInfo; // x : Ocean, y : Shore, z : Snow, w : Polar, \r\nuniform vec2 u_TerrainInfo;\r\n\r\nuniform float u_Time;\r\nuniform float u_Octave;\r\nuniform vec2 u_Trig;\r\nuniform float u_FloatSpeed;\r\n\r\nuniform vec3 u_CamPos;\r\n\r\n// Sun Setting\r\nuniform vec3 u_SunPos;\r\n\r\nin vec4 vs_Pos;             // The array of vertex positions passed to the shader\r\nin vec4 vs_Nor;             // The array of vertex normals passed to the shader\r\nin vec4 vs_Col;             // The array of vertex colors passed to the shader.\r\n\r\n// Return a random direction in a circle\r\nvec3 random3( vec3 p, float seed ) {\r\n    return normalize(2.0 * fract(sin(vec3(\r\n        dot(p,vec3(78.233, 127.1, 311.7)+vec3(23.146, 12.37, 221.574)*seed),\r\n        dot(p,vec3(138.11,269.5,183.3)+vec3(35.26, 6.3117, 41.74)*seed),\r\n        dot(p,vec3(12.388, 165.24, 278.322)+vec3(29.111, 188.327, 64.574)*seed)\r\n        ))*43758.5453) - 1.0);\r\n}\r\n\r\nfloat surflet3D(vec3 P, vec3 gridPoint)\r\n{\r\n    // Compute falloff function by converting linear distance to a polynomial\r\n    float distX = abs(P.x - gridPoint.x);\r\n    float distY = abs(P.y - gridPoint.y);\r\n    float distZ = abs(P.z - gridPoint.z);\r\n    float tX = 1.0 - 6.0 * pow(distX, 5.0) + 15.0 * pow(distX, 4.0) - 10.0 * pow(distX, 3.0);\r\n    float tY = 1.0 - 6.0 * pow(distY, 5.0) + 15.0 * pow(distY, 4.0) - 10.0 * pow(distY, 3.0);\r\n    float tZ = 1.0 - 6.0 * pow(distZ, 5.0) + 15.0 * pow(distZ, 4.0) - 10.0 * pow(distZ, 3.0);\r\n\r\n    // Get the random vector for the grid point\r\n    vec3 gradient = random3(gridPoint, u_TerrainInfo.y);\r\n    // Get the vector from the grid point to P\r\n    vec3 diff = P - gridPoint;\r\n    // Get the value of our height field by dotting grid->P with our gradient\r\n    float height = dot(diff, gradient);\r\n    // Scale our height field (i.e. reduce it) by our polynomial falloff function\r\n    return height * tX * tY * tZ;\r\n}\r\n\r\nfloat PerlinNoise(vec3 uvw)\r\n{\r\n    // Tile the space\r\n    vec3 uvwXLYLZL = floor(uvw);\r\n    vec3 uvwXLYHZL = uvwXLYLZL + vec3(0,1,0);\r\n    vec3 uvwXLYHZH = uvwXLYLZL + vec3(0,1,1);\r\n    vec3 uvwXLYLZH = uvwXLYLZL + vec3(0,0,1);\r\n    vec3 uvwXHYLZL = uvwXLYLZL + vec3(1,0,0);\r\n    vec3 uvwXHYHZL = uvwXLYLZL + vec3(1,1,0);\r\n    vec3 uvwXHYLZH = uvwXLYLZL + vec3(1,0,1);\r\n    vec3 uvwXHYHZH = uvwXLYLZL + vec3(1,1,1);\r\n\r\n    return ((surflet3D(uvw, uvwXLYLZL) + surflet3D(uvw, uvwXLYHZL) + surflet3D(uvw, uvwXLYHZH) + surflet3D(uvw, uvwXLYLZH) + \r\n    surflet3D(uvw, uvwXHYLZL) + surflet3D(uvw, uvwXHYHZL) + surflet3D(uvw, uvwXHYLZH) + surflet3D(uvw, uvwXHYHZH))+1.0)/2.0;\r\n}\r\n\r\nfloat fbm(vec3 x, float resolution)\r\n{\r\n    x = x * resolution;\r\n    float v = 0.0;\r\n    float a = 0.5;\r\n    vec3 shift = vec3(100.0);\r\n    for (int i = 0; i < int(u_Octave); ++i)\r\n    {\r\n    v += a * PerlinNoise(x);\r\n    x = x * 2.0 + shift;\r\n    a *= 0.5;\r\n    }  \r\n    return v;\r\n}\r\n\r\n// all of the vectors are transform to Local Space\r\nout vec4 fs_Pos;\r\nout vec4 fs_Nor;            // The array of normals that has been transformed by u_ModelInvTr. This is implicitly passed to the fragment shader.\r\nout vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.\r\nout vec4 fs_LightVec;       // \r\nout vec4 fs_ViewVec;\r\nout float fs_Shininess;\r\n\r\nvoid main()\r\n{\r\n    fs_Col = vs_Col;\r\n    fs_Shininess = 1.0;\r\n    vec4 vertexPos = vs_Pos;\r\n    fs_Pos = vs_Pos;\r\n    float oceneHeight = length(vertexPos.xyz) + u_HeightsInfo.x;\r\n    vec3 localNormal = normalize(vertexPos.xyz);\r\n\r\n    // noise\r\n    vec3 floating;\r\n    if (u_Trig.x == 1.0){\r\n        floating = vec3(sin(u_Time * 1.0 * u_FloatSpeed));\r\n    } \r\n    else{\r\n        floating = vec3(0.0);\r\n    }    \r\n\r\n// Follow the instructions of 'Implicit Procedural Planet Generation - Report' 4.2, 4.3, 4.5\r\n    float tropicalAlpha = clamp(pow(abs(vertexPos.y*5.0), 3.0), 0.005, 1.0);\r\n    float resolution = 4.0;\r\n    float noiseResult = fbm(vertexPos.xyz+floating, resolution) * 2.0;  \r\n    // Tropical\r\n    noiseResult = pow(noiseResult,  u_TerrainInfo.x * tropicalAlpha);\r\n    vertexPos.xyz += localNormal * noiseResult;\r\n    float height = length(vertexPos.xyz);\r\n \r\n    float rockShininess = 0.1;\r\n    float iceShininess = 0.85;\r\n    float foliageShininess = 0.2;\r\n    float tropicalShininess = 0.35;\r\n    float snowShininess = 0.2;\r\n    float coastShininess = 0.1;\r\n\r\n    //Below ocean\r\n    if(height <= oceneHeight)\r\n    {\r\n        //Generate different colors for different depth of the water\r\n        float depth3 = pow(clamp((1.0 - (oceneHeight - height)), 0.0, 1.0), 3.0);\r\n        float alpha = pow(clamp((oceneHeight - height)/(oceneHeight - 1.0), 0.0, 1.0), 2.0);\r\n        fs_Shininess = mix(coastShininess, rockShininess, alpha);\r\n        fs_Col = mix(u_CoastColor, u_RockColor, alpha) * depth3;\r\n    }\r\n    //Above ocean\r\n    else\r\n    {\r\n        float alpha = 0.0;\r\n\r\n        //Tropical\r\n        vec4 mixFoliageColor = mix(u_TropicalColor, u_FoliageColor, tropicalAlpha);\r\n        float mixFoliageShininess = mix(tropicalShininess, foliageShininess, tropicalAlpha);\r\n\r\n        //Polar\r\n        if(abs(vertexPos.y) > u_HeightsInfo.w)\r\n            alpha = clamp((abs(vertexPos.y) - u_HeightsInfo.w)/(2.0 - u_HeightsInfo.w), 0.0, 1.0);\r\n        \r\n        vec4 terrainColor = mix(mixFoliageColor, u_SnowColor, alpha);\r\n        float terrainShininess = mix(mixFoliageShininess, iceShininess, alpha);\r\n\r\n        float coastLine = oceneHeight + u_HeightsInfo.y * pow(tropicalAlpha, 2.5);\r\n        float snowLine = 1.0 + u_HeightsInfo.z;\r\n\r\n        if(height < coastLine)\r\n        {\r\n            fs_Col = u_CoastColor;\r\n            fs_Shininess = coastShininess;\r\n        }\r\n        else if(height >= snowLine)\r\n        {\r\n            float alpha = clamp( (height - snowLine ) / 0.03, 0.0, 1.0);\r\n            fs_Col = mix(terrainColor, u_SnowColor, alpha);\r\n            fs_Shininess = mix(terrainShininess, snowShininess, alpha);\r\n        }        \r\n        else\r\n        {\r\n            float alpha = clamp( (height - coastLine ) / u_HeightsInfo.y, 0.0, 1.0);\r\n            fs_Col = mix(u_CoastColor, terrainColor, alpha);\r\n            fs_Shininess = mix(coastShininess, terrainShininess, alpha);\r\n        }\r\n\r\n    }\r\n\r\n    vec4 modelposition = u_Model * vertexPos;\r\n    vec3 sunDirection = normalize(u_SunPos.xyz);\r\n    mat3 invModel = mat3(inverse(u_Model));\r\n    sunDirection = invModel * sunDirection;\r\n    fs_LightVec = vec4(normalize(sunDirection), 1.0);\r\n    vec3 viewVec = u_CamPos.xyz - modelposition.xyz;\r\n    fs_ViewVec = vec4( invModel * normalize(viewVec), length(u_CamPos.xyz));\r\n\r\n    gl_Position = u_ViewProj * modelposition;\r\n\r\n}\r\n"
 
 /***/ }),
 /* 66 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\n\n// This is a fragment shader. If you've opened this file first, please\n// open and read lambert.vert.glsl before reading on.\n// Unlike the vertex shader, the fragment shader actually does compute\n// the shading of geometry. For every pixel in your program's output\n// screen, the fragment shader is run for every bit of geometry that\n// particular pixel overlaps. By implicitly interpolating the position\n// data passed into the fragment shader by the vertex shader, the fragment shader\n// can compute what color to apply to its pixel based on things like vertex\n// position, light position, and vertex color.\nprecision highp float;\n\nuniform vec4 u_Color; // The color with which to render this instance of geometry.\n\n// These are the interpolated values out of the rasterizer, so you can't know\n// their specific values without knowing the vertices that contributed to them\nin vec4 fs_Nor;\nin vec4 fs_LightVec;\nin vec4 fs_Col;\n\nout vec4 out_Col; // This is the final output color that you will see on your\n                  // screen for the pixel that is currently being processed.\n\nvoid main()\n{\n    // Material base color (before shading)\n        vec4 diffuseColor = u_Color;\n\n        // Calculate the diffuse term for Lambert shading\n        float diffuseTerm = dot(normalize(fs_Nor), normalize(fs_LightVec));\n        // Avoid negative lighting values\n        // diffuseTerm = clamp(diffuseTerm, 0, 1);\n\n        float ambientTerm = 0.2;\n\n        float lightIntensity = diffuseTerm + ambientTerm;   //Add a small float value to the color multiplier\n                                                            //to simulate ambient lighting. This ensures that faces that are not\n                                                            //lit by our point light are not completely black.\n\n        // Compute final shaded color\n        out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);\n}\n"
+module.exports = "#version 300 es\r\n\r\n//#extension GL_OES_standard_derivatives : enable\r\nprecision highp float;\r\n#define PI 3.1415926535897932384626422832795028841971\r\n\r\n//uniform vec4 u_Color; // The color with which to render this instance of geometry.\r\nuniform vec4 u_SunPosition;\r\nuniform vec4 u_OceanColor;\r\nuniform vec4 u_CoastColor;\r\nuniform vec4 u_FoliageColor;\r\nuniform vec4 u_MountainColor;\r\nuniform vec4 u_SnowColor;\r\nuniform vec4 u_HaloColor;\r\nuniform vec4 u_HeightsInfo;\r\nuniform vec3 u_CamPos;\r\nuniform float u_Time;\r\nuniform vec2 u_TerrainInfo;\r\nuniform float u_Octave;\r\nuniform float u_Shader;\r\n\r\nuniform vec4 u_SunLight; // r, g, b, intensity\r\n\r\n\r\n// Return a random direction in a circle\r\nvec3 random3( vec3 p, float seed ) {\r\n    return normalize(2.0 * fract(sin(vec3(\r\n        dot(p,vec3(78.233, 127.1, 311.7)+vec3(23.146, 12.37, 221.574)*seed),\r\n        dot(p,vec3(138.11,269.5,183.3)+vec3(35.26, 6.3117, 41.74)*seed),\r\n        dot(p,vec3(12.388, 165.24, 278.322)+vec3(29.111, 188.327, 64.574)*seed)\r\n        ))*43758.5453) - 1.0);\r\n}\r\n\r\nfloat surflet3D(vec3 P, vec3 gridPoint)\r\n{\r\n    // Compute falloff function by converting linear distance to a polynomial\r\n    float distX = abs(P.x - gridPoint.x);\r\n    float distY = abs(P.y - gridPoint.y);\r\n    float distZ = abs(P.z - gridPoint.z);\r\n    float tX = 1.0 - 6.0 * pow(distX, 5.0) + 15.0 * pow(distX, 4.0) - 10.0 * pow(distX, 3.0);\r\n    float tY = 1.0 - 6.0 * pow(distY, 5.0) + 15.0 * pow(distY, 4.0) - 10.0 * pow(distY, 3.0);\r\n    float tZ = 1.0 - 6.0 * pow(distZ, 5.0) + 15.0 * pow(distZ, 4.0) - 10.0 * pow(distZ, 3.0);\r\n\r\n    // Get the random vector for the grid point\r\n    vec3 gradient = random3(gridPoint, u_TerrainInfo.y);\r\n    // Get the vector from the grid point to P\r\n    vec3 diff = P - gridPoint;\r\n    // Get the value of our height field by dotting grid->P with our gradient\r\n    float height = dot(diff, gradient);\r\n    // Scale our height field (i.e. reduce it) by our polynomial falloff function\r\n    return height * tX * tY * tZ;\r\n}\r\n\r\nfloat PerlinNoise(vec3 uvw)\r\n{\r\n    // Tile the space\r\n    vec3 uvwXLYLZL = floor(uvw);\r\n    vec3 uvwXLYHZL = uvwXLYLZL + vec3(0,1,0);\r\n    vec3 uvwXLYHZH = uvwXLYLZL + vec3(0,1,1);\r\n    vec3 uvwXLYLZH = uvwXLYLZL + vec3(0,0,1);\r\n    vec3 uvwXHYLZL = uvwXLYLZL + vec3(1,0,0);\r\n    vec3 uvwXHYHZL = uvwXLYLZL + vec3(1,1,0);\r\n    vec3 uvwXHYLZH = uvwXLYLZL + vec3(1,0,1);\r\n    vec3 uvwXHYHZH = uvwXLYLZL + vec3(1,1,1);\r\n\r\n    return ((surflet3D(uvw, uvwXLYLZL) + surflet3D(uvw, uvwXLYHZL) + surflet3D(uvw, uvwXLYHZH) + surflet3D(uvw, uvwXLYLZH) + \r\n    surflet3D(uvw, uvwXHYLZL) + surflet3D(uvw, uvwXHYHZL) + surflet3D(uvw, uvwXHYLZH) + surflet3D(uvw, uvwXHYHZH))+1.0)/2.0;\r\n}\r\n\r\n#define Epsilon 0.0001\r\n\r\nfloat fbm(vec3 x, float resolution, int LOD)\r\n{\r\n    x =  x * resolution;\r\n    float v = 0.0;\r\n    float a = 0.5;\r\n    vec3 shift = vec3(100.0);\r\n    for (int i = 0; i < LOD; ++i)\r\n    {\r\n    v += a * PerlinNoise(x);\r\n    x = x * 2.0 + shift;\r\n    a *= 0.5;\r\n    }  \r\n    return v;\r\n}\r\n\r\n// These are the interpolated values out of the rasterizer, so you can't know\r\n// their specific values without knowing the vertices that contributed to them\r\nin vec4 fs_Pos;\r\nin vec4 fs_Nor;\r\nin vec4 fs_LightVec;\r\nin vec4 fs_Col;\r\nin vec4 fs_ViewVec;\r\nin float fs_Shininess;\r\n\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n\r\n                  // screen for the pixel that is currently being processed.\r\n\r\n// All of the computation happen in local space\r\nvoid main()\r\n{\r\n    // Material base color (before shading)\r\n    vec3 normalVec = normalize(fs_Nor.xyz);\r\n    vec4 diffuseColor = fs_Col;\r\n\r\n    float Shininess = fs_Shininess;\r\n\r\n    vec3 specularTerm = vec3(0.0);\r\n    vec3 SpecularColor = vec3(1.0, 1.0, 1.0);\r\n\r\n    vec3 localNormal = normalize(fs_Pos.xyz);\r\n\r\n    //5.1.1 Terrain-atmosphere Color Interpolation\r\n    float alpha =  pow(1.0 - clamp(dot(normalize(fs_ViewVec.xyz), localNormal), 0.0, 1.0), 4.0);\r\n    alpha = 0.0;\r\n// The 'detail normal' method is learned from Byumjin Kim, this is the only way to deal with current situation,\r\n// Because the vertex position is changed in vertex shader, but the normal still pass from cpu still unchanged, thus\r\n// we have to recompute the normals. \r\n\r\n// Implicit Procedural Planet Generation - Report 4.4.2 Level of Detail\r\n\r\n    float resolution = 4.0;\r\n    int LOD = int(10.0 * (1.0 - smoothstep(0.0, u_Octave, log(length(u_CamPos.xyz)))));\r\n    float noise = fbm(fs_Pos.xyz, resolution, LOD) * 2.0;\r\n    noise = pow(noise,  u_TerrainInfo.x);\r\n    vec4 vertexPos = fs_Pos;\r\n    vertexPos.xyz += localNormal * noise;\r\n   //detail normal\r\n    normalVec = normalize(cross( dFdx(vertexPos.xyz), dFdy(vertexPos.xyz)));         \r\n    float Steepness= clamp(dot(localNormal, normalVec), 0.0, 1.0);\r\n    diffuseColor = mix(u_MountainColor, diffuseColor, pow(Steepness, 3.0));       \r\n\r\n    float diffuseTerm = clamp(dot(normalVec, normalize(fs_LightVec.xyz)), 0.0, 1.0);\r\n    //Lambert\r\n\r\n    //Blinn_Phong\r\n    if(u_Shader == 1.0)\r\n    {\r\n        vec3 halfVec = fs_ViewVec.xyz + fs_LightVec.xyz;\r\n        halfVec = normalize(halfVec);        \r\n        //Intensity of the specular light\r\n        float NoH = clamp(dot( normalVec, halfVec ), 0.0, 1.0);\r\n        specularTerm = vec3(pow(clamp(NoH, 0.0, 1.0), pow(200.0, Shininess))) * SpecularColor * Shininess;\r\n    }\r\n\r\n    float ambientTerm = 0.0;\r\n    float lightIntensity = diffuseTerm + ambientTerm;   //Add a small float value to the color multiplier\r\n\r\n                                                            //to simulate ambient lighting. This ensures that faces that are not\r\n\r\n                                                            //lit by our point light are not completely black.\r\n\r\n\r\n    // Compute final shaded color\r\n    vec4 finalColor = vec4( ( diffuseColor.rgb + specularTerm) * lightIntensity, 1.0);\r\n    out_Col = vec4(mix(finalColor, u_HaloColor, alpha).rgb * u_SunLight.rgb * u_SunLight.a, 1.0);\r\n}\r\n"
+
+/***/ }),
+/* 67 */
+/***/ (function(module, exports) {
+
+module.exports = "#version 300 es\r\n\r\nuniform mat4 u_Model; \r\nuniform mat4 u_ModelInvTr;\r\nuniform mat4 u_ViewProj; \r\n\r\nuniform vec4 u_OceanColor;\r\nuniform vec4 u_SnowColor;\r\n\r\nuniform vec4 u_HeightsInfo; // x : Ocean, y : Shore, z : Snow, w : Polar, \r\nuniform vec2 u_TerrainInfo;\r\n\r\nuniform float u_Time;\r\nuniform float u_Octave;\r\n\r\nuniform vec3 u_CamPos;\r\n\r\n// Sun Setting\r\nuniform vec3 u_SunPos;\r\n\r\nin vec4 vs_Pos;             // The array of vertex positions passed to the shader\r\nin vec4 vs_Nor;             // The array of vertex normals passed to the shader\r\nin vec4 vs_Col;             // The array of vertex colors passed to the shader.\r\n\r\n// Return a random direction in a circle\r\nvec3 random3( vec3 p, float seed ) {\r\n    return normalize(2.0 * fract(sin(vec3(\r\n        dot(p,vec3(78.233, 127.1, 311.7)+vec3(23.146, 12.37, 221.574)*seed),\r\n        dot(p,vec3(138.11,269.5,183.3)+vec3(35.26, 6.3117, 41.74)*seed),\r\n        dot(p,vec3(12.388, 165.24, 278.322)+vec3(29.111, 188.327, 64.574)*seed)\r\n        ))*43758.5453) - 1.0);\r\n}\r\n\r\nfloat surflet3D(vec3 P, vec3 gridPoint)\r\n{\r\n    // Compute falloff function by converting linear distance to a polynomial\r\n    float distX = abs(P.x - gridPoint.x);\r\n    float distY = abs(P.y - gridPoint.y);\r\n    float distZ = abs(P.z - gridPoint.z);\r\n    float tX = 1.0 - 6.0 * pow(distX, 5.0) + 15.0 * pow(distX, 4.0) - 10.0 * pow(distX, 3.0);\r\n    float tY = 1.0 - 6.0 * pow(distY, 5.0) + 15.0 * pow(distY, 4.0) - 10.0 * pow(distY, 3.0);\r\n    float tZ = 1.0 - 6.0 * pow(distZ, 5.0) + 15.0 * pow(distZ, 4.0) - 10.0 * pow(distZ, 3.0);\r\n\r\n    // Get the random vector for the grid point\r\n    vec3 gradient = random3(gridPoint, u_TerrainInfo.y);\r\n    // Get the vector from the grid point to P\r\n    vec3 diff = P - gridPoint;\r\n    // Get the value of our height field by dotting grid->P with our gradient\r\n    float height = dot(diff, gradient);\r\n    // Scale our height field (i.e. reduce it) by our polynomial falloff function\r\n    return height * tX * tY * tZ;\r\n}\r\n\r\nfloat PerlinNoise(vec3 uvw)\r\n{\r\n    // Tile the space\r\n    vec3 uvwXLYLZL = floor(uvw);\r\n    vec3 uvwXLYHZL = uvwXLYLZL + vec3(0,1,0);\r\n    vec3 uvwXLYHZH = uvwXLYLZL + vec3(0,1,1);\r\n    vec3 uvwXLYLZH = uvwXLYLZL + vec3(0,0,1);\r\n    vec3 uvwXHYLZL = uvwXLYLZL + vec3(1,0,0);\r\n    vec3 uvwXHYHZL = uvwXLYLZL + vec3(1,1,0);\r\n    vec3 uvwXHYLZH = uvwXLYLZL + vec3(1,0,1);\r\n    vec3 uvwXHYHZH = uvwXLYLZL + vec3(1,1,1);\r\n\r\n    return ((surflet3D(uvw, uvwXLYLZL) + surflet3D(uvw, uvwXLYHZL) + surflet3D(uvw, uvwXLYHZH) + surflet3D(uvw, uvwXLYLZH) + \r\n    surflet3D(uvw, uvwXHYLZL) + surflet3D(uvw, uvwXHYHZL) + surflet3D(uvw, uvwXHYLZH) + surflet3D(uvw, uvwXHYHZH))+1.0)/2.0;\r\n}\r\n\r\nfloat fbm(vec3 x, float resolution)\r\n{\r\n    x = x * resolution;\r\n    float v = 0.0;\r\n    float a = 0.5;\r\n    vec3 shift = vec3(100.0);\r\n    for (int i = 0; i < int(u_Octave); ++i)\r\n    {\r\n    v += a * PerlinNoise(x);\r\n    x = x * 2.0 + shift;\r\n    a *= 0.5;\r\n    }  \r\n    return v;\r\n}\r\n\r\n\r\nout vec4 fs_Pos;\r\nout vec4 fs_Nor;            // The array of normals that has been transformed by u_ModelInvTr. This is implicitly passed to the fragment shader.\r\nout vec4 fs_LightVec;       // The direction in which our virtual light lies, relative to each vertex. This is implicitly passed to the fragment shader.\r\nout vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.\r\nout vec4 fs_ViewVec;\r\n\r\nvoid main()\r\n{\r\n    fs_Col = u_OceanColor;\r\n    vec4 vertexPos = vs_Pos;\r\n    fs_Pos = vs_Pos;\r\n    float oceneHeight = length(vertexPos.xyz) + u_HeightsInfo.x;\r\n    vec3 localNormal = normalize(vertexPos.xyz);\r\n\r\n// Follow the instructions of 'Implicit Procedural Planet Generation - Report' 4.2, 4.3, 4.5\r\n    // Tropical\r\n    vertexPos.xyz = localNormal * oceneHeight;\r\n\r\n    vec4 modelposition = u_Model * vertexPos;\r\n    vec3 sunDirection = normalize(u_SunPos.xyz);\r\n    mat3 invModel = mat3(inverse(u_Model));\r\n    sunDirection = invModel * sunDirection;\r\n    fs_LightVec = vec4(normalize(sunDirection), 1.0);\r\n    vec3 viewVec = u_CamPos.xyz - modelposition.xyz;\r\n    fs_ViewVec = vec4( invModel * normalize(viewVec), length(u_CamPos.xyz));\r\n\r\n    gl_Position = u_ViewProj * modelposition;\r\n\r\n}\r\n"
+
+/***/ }),
+/* 68 */
+/***/ (function(module, exports) {
+
+module.exports = "#version 300 es\r\n\r\n//#extension GL_OES_standard_derivatives : enable\r\nprecision highp float;\r\n#define PI 3.1415926535897932384626422832795028841971\r\n\r\n//uniform vec4 u_Color; // The color with which to render this instance of geometry.\r\nuniform vec4 u_SunPosition;\r\nuniform vec4 u_OceanColor;\r\nuniform vec4 u_SnowColor;\r\nuniform vec4 u_HeightsInfo;\r\nuniform vec3 u_CamPos;\r\nuniform float u_Time;\r\nuniform vec2 u_TerrainInfo;\r\nuniform float u_Shader;\r\n\r\nuniform vec4 u_SunLight; // r, g, b, intensity\r\n\r\nuniform sampler2D u_EnvMap;\r\nuniform vec2 u_Trig;\r\n\r\n// These are the interpolated values out of the rasterizer, so you can't know\r\n// their specific values without knowing the vertices that contributed to them\r\nin vec4 fs_Pos;\r\nin vec4 fs_Nor;\r\nin vec4 fs_LightVec;\r\nin vec4 fs_Col;\r\nin vec4 fs_ViewVec;\r\n\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n\r\n                  // screen for the pixel that is currently being processed.\r\n\r\n// All of the computation happen in local space\r\nvoid main()\r\n{\r\n    // Material base color (before shading)\r\n    vec3 normalVec = normalize(fs_Pos.xyz);\r\n    vec4 diffuseColor = fs_Col;\r\n\r\n    float Shininess = 0.85;\r\n    vec3 specularTerm = vec3(0.0);\r\n    vec3 SpecularColor = vec3(1.0, 1.0, 1.0);\r\n\r\n    // Near Polar\r\n    float Interp = clamp((abs(fs_Pos.y) - (u_HeightsInfo.w-1.0))/(2.0 - u_HeightsInfo.w), 0.0, 1.0);\r\n    diffuseColor = mix(diffuseColor, u_SnowColor, pow(Interp, 2.5));\r\n\r\n    float diffuseTerm = clamp(dot(normalVec, normalize(fs_LightVec.xyz)), 0.0, 1.0);\r\n    //Lambert\r\n\r\n    //Blinn_Phong\r\n    if(u_Shader == 1.0)\r\n    {\r\n        vec3 halfVec = fs_ViewVec.xyz + fs_LightVec.xyz;\r\n        halfVec = normalize(halfVec);        \r\n        //Intensity of the specular light\r\n        float NoH = clamp(dot( normalVec, halfVec ), 0.0, 1.0);\r\n        specularTerm = vec3(pow(clamp(NoH, 0.0, 1.0), pow(200.0, Shininess))) * SpecularColor * Shininess;\r\n    }\r\n\r\n    float ambientTerm = 0.0;\r\n    float lightIntensity = diffuseTerm + ambientTerm;   //Add a small float value to the color multiplier\r\n\r\n                                                            //to simulate ambient lighting. This ensures that faces that are not\r\n\r\n                                                            //lit by our point light are not completely black.\r\n\r\n    vec4 envColor = vec4(0.0);\r\n    if (u_Trig.y == 1.0){\r\n        vec3 reflecVec = reflect(-fs_ViewVec.xyz, normalVec);\r\n        //Envmap\r\n        vec2 st;\r\n        st.x = (atan(reflecVec.z, reflecVec.x) + PI) / (2.0*PI);\r\n        st.y = acos(reflecVec.y) / PI;\r\n        envColor = texture(u_EnvMap, st) * Shininess;\r\n    }\r\n\r\n    // vec4 envColor = texture(u_EnvMap, vN) * Shininess * 0.5;\r\n    // Compute final shaded color\r\n    vec4 planetColor = vec4( ( diffuseColor.rgb + specularTerm + envColor.xyz) * lightIntensity, 1.0);\r\n    out_Col = vec4(planetColor.xyz * u_SunLight.rgb * u_SunLight.a, 0.9);\r\n}\r\n"
+
+/***/ }),
+/* 69 */
+/***/ (function(module, exports) {
+
+module.exports = "#version 300 es\r\n\r\nuniform mat4 u_Model; \r\nuniform mat4 u_ModelInvTr;\r\nuniform mat4 u_ViewProj; \r\n\r\nuniform vec4 u_SunPosition;\r\nuniform vec4 u_OceanColor;\r\nuniform vec4 u_CoastColor;\r\nuniform vec4 u_FoliageColor;\r\nuniform vec4 u_MountainColor;\r\nuniform vec4 u_SnowColor;\r\n\r\nuniform vec4 u_HeightsInfo; // x : Ocean, y : Shore, z : Snow, w : Polar, \r\nuniform vec2 u_TerrainInfo;\r\n\r\nuniform float u_Time;\r\nuniform float u_Octave;\r\n\r\nuniform vec3 u_CamPos;\r\n\r\nin vec4 vs_Pos;             // The array of vertex positions passed to the shader\r\nin vec4 vs_Nor;             // The array of vertex normals passed to the shader\r\nin vec4 vs_Col;             // The array of vertex colors passed to the shader.\r\n\r\nconst vec4 lightPos = vec4(5, 5, 3, 1);\r\n\r\nmat4 rotationMatrix(vec3 axis, float angle)\r\n{\r\n    axis = normalize(axis);\r\n    float s = sin(angle);\r\n    float c = cos(angle);\r\n    float oc = 1.0 - c;\r\n    \r\n    return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,\r\n                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,\r\n                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,\r\n                0.0,                                0.0,                                0.0,                                1.0);\r\n}\r\n\r\n// rotation matrix for fbm octaves\r\nmat3 m = mat3( 0.00,  0.80,  0.60,\r\n              -0.80,  0.36, -0.48,\r\n              -0.60, -0.48,  0.64 );\r\n\r\n// Return a random direction in a circle\r\nvec3 random3( vec3 p ) {\r\n    return normalize(2.0 * fract(sin(vec3(dot(p,vec3(78.233, 127.1, 311.7)),dot(p,vec3(138.11,269.5,183.3)),dot(p,vec3(12.388, 165.24, 278.322))))*43758.5453) - 1.0);\r\n}\r\n\r\nfloat surflet3D(vec3 P, vec3 gridPoint)\r\n{\r\n    // Compute falloff function by converting linear distance to a polynomial\r\n    float distX = abs(P.x - gridPoint.x);\r\n    float distY = abs(P.y - gridPoint.y);\r\n    float distZ = abs(P.z - gridPoint.z);\r\n    float tX = 1.0 - 6.0 * pow(distX, 5.0) + 15.0 * pow(distX, 4.0) - 10.0 * pow(distX, 3.0);\r\n    float tY = 1.0 - 6.0 * pow(distY, 5.0) + 15.0 * pow(distY, 4.0) - 10.0 * pow(distY, 3.0);\r\n    float tZ = 1.0 - 6.0 * pow(distZ, 5.0) + 15.0 * pow(distZ, 4.0) - 10.0 * pow(distZ, 3.0);\r\n\r\n    // Get the random vector for the grid point\r\n    vec3 gradient = random3(gridPoint);\r\n    // Get the vector from the grid point to P\r\n    vec3 diff = P - gridPoint;\r\n    // Get the value of our height field by dotting grid->P with our gradient\r\n    float height = dot(diff, gradient);\r\n    // Scale our height field (i.e. reduce it) by our polynomial falloff function\r\n    return height * tX * tY * tZ;\r\n}\r\n\r\nfloat PerlinNoise(vec3 uvw)\r\n{\r\n    // Tile the space\r\n    vec3 uvwXLYLZL = floor(uvw);\r\n    vec3 uvwXLYHZL = uvwXLYLZL + vec3(0,1,0);\r\n    vec3 uvwXLYHZH = uvwXLYLZL + vec3(0,1,1);\r\n    vec3 uvwXLYLZH = uvwXLYLZL + vec3(0,0,1);\r\n    vec3 uvwXHYLZL = uvwXLYLZL + vec3(1,0,0);\r\n    vec3 uvwXHYHZL = uvwXLYLZL + vec3(1,1,0);\r\n    vec3 uvwXHYLZH = uvwXLYLZL + vec3(1,0,1);\r\n    vec3 uvwXHYHZH = uvwXLYLZL + vec3(1,1,1);\r\n\r\n    return ((surflet3D(uvw, uvwXLYLZL) + surflet3D(uvw, uvwXLYHZL) + surflet3D(uvw, uvwXLYHZH) + surflet3D(uvw, uvwXLYLZH) + \r\n    surflet3D(uvw, uvwXHYLZL) + surflet3D(uvw, uvwXHYHZL) + surflet3D(uvw, uvwXHYLZH) + surflet3D(uvw, uvwXHYHZH))+1.0)/2.0;\r\n}\r\n\r\nfloat noise_sum_abs(vec3 p)\r\n{   \r\n    float a = 1., r = 0., s=0.;\r\n    \r\n    for (int i=0; i<2; i++) {\r\n      r += a*abs(PerlinNoise(p)); s+= a; p *= 2.; a*=.5;\r\n    }\r\n    \r\n    return (r/s-.135)/(.06*3.);\r\n}\r\n\r\nout vec4 fs_Pos;\r\nout vec4 fs_LightVec;       // The direction in which our virtual light lies, relative to each vertex. This is implicitly passed to the fragment shader.\r\n\r\nout float fs_Alpha;\r\n\r\nvoid main()\r\n{\r\n    vec4 vertexPos = vs_Pos;\r\n    fs_Pos = vs_Pos;\r\n    vec3 localNormal = normalize(vertexPos.xyz);\r\n    float u_resolution = 4.0;\r\n    float noiseResult = noise_sum_abs(vertexPos.xyz*u_resolution) * 2.0;  \r\n    noiseResult = pow(noiseResult,  0.2);\r\n    // Push more away from center\r\n    vertexPos.xyz += localNormal * (noiseResult - 0.18);\r\n    float height = length(vertexPos.xyz);\r\n    float groundHeight = length(vs_Pos);\r\n\r\n    fs_Alpha = pow(height - groundHeight + 0.20, 15.0);\r\n\r\n    noiseResult = pow(noiseResult,  0.5);\r\n    vertexPos.xyz = vs_Pos.xyz + localNormal * (noiseResult - 0.04);\r\n\r\n    mat4 rotMat = rotationMatrix(vec3(0,1,0), u_Time * 2.0);\r\n    mat4 model = u_Model * rotMat;\r\n    vec4 modelposition = model * vertexPos;\r\n    vec3 sunDirection = normalize(lightPos.xyz);\r\n    mat3 invModel = mat3(inverse(model));\r\n    sunDirection = invModel * sunDirection;\r\n    fs_LightVec = vec4(normalize(sunDirection), 1.0);\r\n\r\n    gl_Position = u_ViewProj * modelposition;\r\n\r\n}\r\n"
+
+/***/ }),
+/* 70 */
+/***/ (function(module, exports) {
+
+module.exports = "#version 300 es\r\n\r\n//#extension GL_OES_standard_derivatives : enable\r\nprecision highp float;\r\n#define PI 3.1415926535897932384626422832795028841971\r\n#define TwoPi 6.28318530717958647692\r\n#define InvPi 0.31830988618379067154\r\n#define Inv2Pi 0.15915494309189533577\r\n#define Inv4Pi 0.07957747154594766788\r\n\r\n//uniform vec4 u_Color; // The color with which to render this instance of geometry.\r\nuniform vec4 u_SunPosition;\r\nuniform vec4 u_OceanColor;\r\nuniform vec4 u_CoastColor;\r\nuniform vec4 u_FoliageColor;\r\nuniform vec4 u_MountainColor;\r\nuniform vec4 u_SnowColor;\r\nuniform vec4 u_HeightsInfo;\r\nuniform vec3 u_CamPos;\r\nuniform float u_Time;\r\nuniform vec2 u_TerrainInfo;\r\nuniform float u_Octave;\r\n\r\n\r\n// These are the interpolated values out of the rasterizer, so you can't know\r\n// their specific values without knowing the vertices that contributed to them\r\nin vec4 fs_Pos;\r\nin vec4 fs_LightVec;\r\nin float fs_Alpha;\r\n\r\nout vec4 out_Col; // This is the final output color that you will see on your\r\n\r\n                  // screen for the pixel that is currently being processed.\r\n\r\n\r\nvoid main()\r\n{\r\n    // Material base color (before shading)\r\n    vec4 vertexPos = fs_Pos;\r\n    vec3 normalVec = normalize(cross( dFdx(vertexPos.xyz), dFdy(vertexPos.xyz))); \r\n    vec4 diffuseColor = vec4(0.98, 0.98, 0.98, 1.0);\r\n\r\n    float diffuseTerm = clamp(dot(normalVec, normalize(fs_LightVec.xyz)), 0.0, 0.7);\r\n    //Lambert\r\n\r\n    float ambientTerm = 0.1;\r\n    float lightIntensity = diffuseTerm + ambientTerm;   //Add a small float value to the color multiplier\r\n\r\n                                                            //to simulate ambient lighting. This ensures that faces that are not\r\n\r\n                                                            //lit by our point light are not completely black.\r\n\r\n    out_Col = vec4(diffuseColor.xyz * lightIntensity * 0.75, fs_Alpha);\r\n}\r\n"
 
 /***/ })
 /******/ ]);
