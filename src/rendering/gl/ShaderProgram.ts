@@ -35,6 +35,7 @@ class ShaderProgram {
   unifFoliageColor: WebGLUniformLocation;
   unifTropicalColor: WebGLUniformLocation;
   unifMountainColor: WebGLUniformLocation;
+  unifHaloColor: WebGLUniformLocation;
   unifTime: WebGLUniformLocation;
   unifTrig: WebGLUniformLocation;
   unifHeightsInfo: WebGLUniformLocation;
@@ -65,12 +66,13 @@ class ShaderProgram {
     this.unifModelInvTr   = gl.getUniformLocation(this.prog, "u_ModelInvTr");
     this.unifViewProj     = gl.getUniformLocation(this.prog, "u_ViewProj");
     this.unifOceanColor   = gl.getUniformLocation(this.prog, "u_OceanColor");
-    this.unifRockColor   = gl.getUniformLocation(this.prog, "u_RockColor");
+    this.unifRockColor    = gl.getUniformLocation(this.prog, "u_RockColor");
     this.unifSnowColor    = gl.getUniformLocation(this.prog, "u_SnowColor");
     this.unifCoastColor   = gl.getUniformLocation(this.prog, "u_CoastColor");
     this.unifFoliageColor = gl.getUniformLocation(this.prog, "u_FoliageColor");
     this.unifTropicalColor= gl.getUniformLocation(this.prog, "u_TropicalColor");
     this.unifMountainColor= gl.getUniformLocation(this.prog, "u_MountainColor");
+    this.unifHaloColor    = gl.getUniformLocation(this.prog, "u_HaloColor");
     this.unifHeightsInfo  = gl.getUniformLocation(this.prog, "u_HeightsInfo");
     this.unifTerrainInfo  = gl.getUniformLocation(this.prog, "u_TerrainInfo");
     this.unifCamPos       = gl.getUniformLocation(this.prog, "u_CamPos");
@@ -113,7 +115,7 @@ class ShaderProgram {
   }
 
   // Set Colors
-  setColors(oceanColor: vec4, rockColor: vec4, snowColor: vec4, coastColor: vec4, foliageColor: vec4, tropicalColor: vec4, mountainColor: vec4){
+  setColors(oceanColor: vec4, rockColor: vec4, snowColor: vec4, coastColor: vec4, foliageColor: vec4, tropicalColor: vec4, mountainColor: vec4, haloColor: vec4){
     this.use();
     if (this.unifOceanColor !== -1)
       gl.uniform4fv(this.unifOceanColor, oceanColor);
@@ -129,6 +131,8 @@ class ShaderProgram {
       gl.uniform4fv(this.unifTropicalColor, tropicalColor);
     if (this.unifMountainColor !== -1)
       gl.uniform4fv(this.unifMountainColor, mountainColor);
+    if (this.unifHaloColor !== -1)
+      gl.uniform4fv(this.unifHaloColor, haloColor);
   }
 
   setHeightsInfo(heightsInfo: vec4){

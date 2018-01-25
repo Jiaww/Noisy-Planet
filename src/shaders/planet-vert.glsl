@@ -89,11 +89,11 @@ float fbm(vec3 x, float resolution)
     return v;
 }
 
-
+// all of the vectors are transform to Local Space
 out vec4 fs_Pos;
 out vec4 fs_Nor;            // The array of normals that has been transformed by u_ModelInvTr. This is implicitly passed to the fragment shader.
-out vec4 fs_LightVec;       // The direction in which our virtual light lies, relative to each vertex. This is implicitly passed to the fragment shader.
 out vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.
+out vec4 fs_LightVec;       // 
 out vec4 fs_ViewVec;
 out float fs_Shininess;
 
@@ -137,7 +137,6 @@ void main()
         //Generate different colors for different depth of the water
         float depth3 = pow(clamp((1.0 - (oceneHeight - height)), 0.0, 1.0), 3.0);
         float alpha = pow(clamp((oceneHeight - height)/(oceneHeight - 1.0), 0.0, 1.0), 2.0);
-        fs_Pos = vertexPos;
         fs_Shininess = mix(coastShininess, rockShininess, alpha);
         fs_Col = mix(u_CoastColor, u_RockColor, alpha) * depth3;
     }

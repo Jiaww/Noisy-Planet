@@ -11,6 +11,7 @@ uniform vec4 u_CoastColor;
 uniform vec4 u_FoliageColor;
 uniform vec4 u_MountainColor;
 uniform vec4 u_SnowColor;
+uniform vec4 u_HaloColor;
 uniform vec4 u_HeightsInfo;
 uniform vec3 u_CamPos;
 uniform float u_Time;
@@ -110,8 +111,9 @@ void main()
 
     vec3 localNormal = normalize(fs_Pos.xyz);
 
-    //Terrain-atmosphere Color Interpolation
-
+    //5.1.1 Terrain-atmosphere Color Interpolation
+    float alpha =  pow(1.0 - clamp(dot(normalize(fs_ViewVec.xyz), localNormal), 0.0, 1.0), 4.0);
+    alpha = 0.0;
 // The 'detail normal' method is learned from Byumjin Kim, this is the only way to deal with current situation,
 // Because the vertex position is changed in vertex shader, but the normal still pass from cpu still unchanged, thus
 // we have to recompute the normals. 
@@ -151,6 +153,6 @@ void main()
 
 
     // Compute final shaded color
-    vec4 planetColor = vec4( ( diffuseColor.rgb + specularTerm) * lightIntensity, 1.0);
-    out_Col = vec4(planetColor.xyz * u_SunLight.rgb * u_SunLight.a, 1.0);
+    vec4 finalColor = vec4( ( diffuseColor.rgb + specularTerm) * lightIntensity, 1.0);
+    out_Col = vec4(mix(finalColor, u_HaloColor, alpha).rgb * u_SunLight.rgb * u_SunLight.a, 1.0);
 }

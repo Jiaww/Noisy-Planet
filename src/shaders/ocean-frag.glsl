@@ -79,5 +79,5 @@ void main()
     // vec4 envColor = texture(u_EnvMap, vN) * Shininess * 0.5;
     // Compute final shaded color
     vec4 planetColor = vec4( ( diffuseColor.rgb + specularTerm + envColor.xyz) * lightIntensity, 1.0);
-    out_Col = vec4(planetColor.xyz * u_SunLight.rgb * u_SunLight.a, 1.0);
+    out_Col = vec4(planetColor.xyz * u_SunLight.rgb * u_SunLight.a, 0.9);
 }

@@ -45,6 +45,7 @@ export const controls = {
   SunPositionZ: 1.0,
   SunColor: [255, 255, 232, 1.0],
   SunIntensity: 1.0,
+  HaloColor: [255,250,205, 1.0],
 };
 
 
@@ -77,7 +78,8 @@ function main() {
   planetSetting.addColor(controls, 'MountainColor');
   planetSetting.addColor(controls, 'FoliageColor');
   planetSetting.addColor(controls, 'TropicalColor');
-  planetSetting.add(controls, 'OceanHeight', 0.0, 1.50).step(0.01);
+  planetSetting.addColor(controls, 'HaloColor');
+  planetSetting.add(controls, 'OceanHeight', 0.0, 1.50).step(0.002);
   planetSetting.add(controls, 'CoastHeight', 0.0, 0.04).step(0.002);
   planetSetting.add(controls, 'SnowHeight', 0.0, 2.00).step(0.01);
   planetSetting.add(controls, 'PolarCapsAttitude', 0.0, 2.0).step(0.01);

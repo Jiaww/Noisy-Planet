@@ -48,7 +48,8 @@ class OpenGLRenderer {
       vec4.fromValues(controls.CoastColor[0]/255, controls.CoastColor[1]/255, controls.CoastColor[2]/255, 1),
       vec4.fromValues(controls.FoliageColor[0]/255, controls.FoliageColor[1]/255, controls.FoliageColor[2]/255, 1),
       vec4.fromValues(controls.TropicalColor[0]/255, controls.TropicalColor[1]/255, controls.TropicalColor[2]/255, 1),
-      vec4.fromValues(controls.MountainColor[0]/255, controls.MountainColor[1]/255, controls.MountainColor[2]/255, 1));
+      vec4.fromValues(controls.MountainColor[0]/255, controls.MountainColor[1]/255, controls.MountainColor[2]/255, 1),
+      vec4.fromValues(controls.HaloColor[0]/255, controls.HaloColor[1]/255, controls.HaloColor[2]/255, 1));
 
     prog.setHeightsInfo(vec4.fromValues(controls.OceanHeight, controls.CoastHeight, controls.SnowHeight, controls.PolarCapsAttitude));
     
