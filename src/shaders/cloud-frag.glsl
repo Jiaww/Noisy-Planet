@@ -50,5 +50,5 @@ void main()
 
                                                             //lit by our point light are not completely black.
 
-    out_Col = vec4(diffuseColor.xyz * lightIntensity, fs_Alpha);
+    out_Col = vec4(diffuseColor.xyz * lightIntensity * 0.75, fs_Alpha);
 }

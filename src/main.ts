@@ -16,9 +16,12 @@ export const controls = {
   'Load Scene': loadScene, // A function pointer, essentially
   Color: [255, 0, 0],
   Color2: [0, 255, 255],  
-  Shader: 'planet',
+  Shader: 'blinn-phong',
+  OceanTrig: true,
   CloudTrig: true,
-  FunnyTrig: false,
+  FloatTrig: false,
+  _4DTrig: false,
+  EnvTrig: true,
   ScaleSpeed: 1.0,
   RotateSpeed: 1.0,
   Octave: 7.0,
@@ -26,6 +29,7 @@ export const controls = {
   FloatAmp: 1.0,
   OceanColor: [42, 159, 207, 1.0],
   OceanHeight: 1.0,
+  RockColor: [65, 60, 41, 1.0],
   CoastColor: [233, 200, 143, 1.0],
   CoastHeight: 0.02,
   FoliageColor: [0, 89, 27, 1.0], 
@@ -45,17 +49,11 @@ export const controls = {
 
 
 let icosphere: Icosphere;
-let square: Square;
-let cube: Cube;
 
 function loadScene() {
   icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, controls.tesselations);
   icosphere.create();
   icosphere.loadTexture('envmap.jpg');
-  square = new Square(vec3.fromValues(0, 0, 0));
-  square.create();
-  cube = new Cube(vec3.fromValues(0, 0, 0));
-  cube.create();
 }
 
 function main() {
@@ -73,13 +71,14 @@ function main() {
   gui.add(controls, 'Load Scene');
   var planetSetting = gui.addFolder('Planet Setting');  
   planetSetting.addColor(controls, 'OceanColor');
+  planetSetting.addColor(controls, 'RockColor');
   planetSetting.addColor(controls, 'SnowColor');
   planetSetting.addColor(controls, 'CoastColor');
   planetSetting.addColor(controls, 'MountainColor');
   planetSetting.addColor(controls, 'FoliageColor');
   planetSetting.addColor(controls, 'TropicalColor');
   planetSetting.add(controls, 'OceanHeight', 0.0, 1.50).step(0.01);
-  planetSetting.add(controls, 'CoastHeight', 0.0, 0.04).step(0.01);
+  planetSetting.add(controls, 'CoastHeight', 0.0, 0.04).step(0.002);
   planetSetting.add(controls, 'SnowHeight', 0.0, 2.00).step(0.01);
   planetSetting.add(controls, 'PolarCapsAttitude', 0.0, 2.0).step(0.01);
   planetSetting.add(controls, 'TerrainExp', 0.0, 1.0).step(0.01);
@@ -93,17 +92,13 @@ function main() {
   sunSetting.addColor(controls, 'SunColor');
   sunSetting.add(controls, 'SunIntensity', 0.0, 2.0).step(0.1);
 
-  gui.add(controls, 'Shader', ['lambert', 'funny', 'perlin3D', 'perlin3D_BlinnPhong', 'planet'])
-  gui.add(controls, 'CloudTrig')
-  gui.add(controls, 'FunnyTrig')
+  gui.add(controls, 'Shader', ['lambert', 'blinn-phong']);
+  gui.add(controls, 'OceanTrig');
+  gui.add(controls, 'CloudTrig');
+  gui.add(controls, 'FloatTrig');
   gui.add(controls, 'FloatSpeed', 0.0, 10.0).step(0.1);
-
-  var otherSetting = gui.addFolder('Other Setting');  
-  otherSetting.addColor(controls, 'Color');
-  otherSetting.addColor(controls, 'Color2');
-  otherSetting.add(controls, 'ScaleSpeed', 0.1, 10.0).step(0.1);
-  otherSetting.add(controls, 'RotateSpeed', 0, 2.0).step(0.1);
-  otherSetting.add(controls, 'FloatAmp', 0.0, 10.0).step(0.1);
+  gui.add(controls, '_4DTrig');
+  gui.add(controls, 'EnvTrig');
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -124,29 +119,14 @@ function main() {
   renderer.setClearColor(0.0, 0.0, 0.00, 1);
   gl.enable(gl.DEPTH_TEST);
 
-  const lambert = new ShaderProgram([
-    new Shader(gl.VERTEX_SHADER, require('./shaders/lambert-vert.glsl')),
-    new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl')),
-  ]);
-
-  const funny = new ShaderProgram([
-    new Shader(gl.VERTEX_SHADER, require('./shaders/funny-vert.glsl')),
-    new Shader(gl.FRAGMENT_SHADER, require('./shaders/funny-frag.glsl')),
-  ]);
-
-  const perlin3D = new ShaderProgram([
-    new Shader(gl.VERTEX_SHADER, require('./shaders/perlin3D-vert.glsl')),
-    new Shader(gl.FRAGMENT_SHADER, require('./shaders/perlin3D-frag.glsl')),
-  ]);
-
-  const perlin3D_BP = new ShaderProgram([
-    new Shader(gl.VERTEX_SHADER, require('./shaders/perlin3D_BlinnPhong-vert.glsl')),
-    new Shader(gl.FRAGMENT_SHADER, require('./shaders/perlin3D_BlinnPhong-frag.glsl')),
-  ]);
-
   const planet = new ShaderProgram([
     new Shader(gl.VERTEX_SHADER, require('./shaders/planet-vert.glsl')),
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/planet-frag.glsl')),
+  ]);
+
+  const ocean = new ShaderProgram([
+    new Shader(gl.VERTEX_SHADER, require('./shaders/ocean-vert.glsl')),
+    new Shader(gl.FRAGMENT_SHADER, require('./shaders/ocean-frag.glsl')),
   ]);
 
   const cloud = new ShaderProgram([
@@ -159,36 +139,21 @@ function main() {
     stats.begin();
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.clear();
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
     gl.cullFace(gl.FRONT);
     let shader;
-    if (controls.Shader == 'lambert')
-      shader = lambert;
-    else if (controls.Shader == 'funny')
-      shader = funny;
-    else if (controls.Shader == 'perlin3D')
-      shader = perlin3D;
-    else if (controls.Shader == 'perlin3D_BlinnPhong')
-      shader = perlin3D_BP;
-    else if (controls.Shader == 'planet')
-      shader = planet
-
-    if (shader == planet){
-      gl.disable(gl.BLEND);
-      renderer.render(camera, shader, [icosphere,]);
-      if (controls.CloudTrig){
-        gl.enable(gl.BLEND);
-        renderer.render(camera, cloud, [icosphere,]);
-      }
+    gl.disable(gl.BLEND);
+    renderer.render(camera, planet, [icosphere,]);
+    if (controls.OceanTrig){
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      gl.enable(gl.BLEND);
+      renderer.render(camera, ocean, [icosphere,]);
     }
-    else{
-      renderer.render(camera, shader, [
-      icosphere,
-      //square,
-      //cube,
-    ]);
+    if (controls.CloudTrig){
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);  
+      gl.enable(gl.BLEND);
+      renderer.render(camera, cloud, [icosphere,]);
     }
     stats.end();
 

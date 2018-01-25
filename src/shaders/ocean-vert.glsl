@@ -5,20 +5,13 @@ uniform mat4 u_ModelInvTr;
 uniform mat4 u_ViewProj; 
 
 uniform vec4 u_OceanColor;
-uniform vec4 u_RockColor;
-uniform vec4 u_CoastColor;
-uniform vec4 u_FoliageColor;
-uniform vec4 u_MountainColor;
 uniform vec4 u_SnowColor;
-uniform vec4 u_TropicalColor;
 
 uniform vec4 u_HeightsInfo; // x : Ocean, y : Shore, z : Snow, w : Polar, 
 uniform vec2 u_TerrainInfo;
 
 uniform float u_Time;
 uniform float u_Octave;
-uniform vec2 u_Trig;
-uniform float u_FloatSpeed;
 
 uniform vec3 u_CamPos;
 
@@ -95,90 +88,18 @@ out vec4 fs_Nor;            // The array of normals that has been transformed by
 out vec4 fs_LightVec;       // The direction in which our virtual light lies, relative to each vertex. This is implicitly passed to the fragment shader.
 out vec4 fs_Col;            // The color of each vertex. This is implicitly passed to the fragment shader.
 out vec4 fs_ViewVec;
-out float fs_Shininess;
 
 void main()
 {
-    fs_Col = vs_Col;
-    fs_Shininess = 1.0;
+    fs_Col = u_OceanColor;
     vec4 vertexPos = vs_Pos;
     fs_Pos = vs_Pos;
     float oceneHeight = length(vertexPos.xyz) + u_HeightsInfo.x;
     vec3 localNormal = normalize(vertexPos.xyz);
 
-    // noise
-    vec3 floating;
-    if (u_Trig.x == 1.0){
-        floating = vec3(sin(u_Time * 1.0 * u_FloatSpeed));
-    } 
-    else{
-        floating = vec3(0.0);
-    }    
-
 // Follow the instructions of 'Implicit Procedural Planet Generation - Report' 4.2, 4.3, 4.5
-    float tropicalAlpha = clamp(pow(abs(vertexPos.y*5.0), 3.0), 0.005, 1.0);
-    float resolution = 4.0;
-    float noiseResult = fbm(vertexPos.xyz+floating, resolution) * 2.0;  
     // Tropical
-    noiseResult = pow(noiseResult,  u_TerrainInfo.x * tropicalAlpha);
-    vertexPos.xyz += localNormal * noiseResult;
-    float height = length(vertexPos.xyz);
- 
-    float rockShininess = 0.1;
-    float iceShininess = 0.85;
-    float foliageShininess = 0.2;
-    float tropicalShininess = 0.35;
-    float snowShininess = 0.2;
-    float coastShininess = 0.1;
-
-    //Below ocean
-    if(height <= oceneHeight)
-    {
-        //Generate different colors for different depth of the water
-        float depth3 = pow(clamp((1.0 - (oceneHeight - height)), 0.0, 1.0), 3.0);
-        float alpha = pow(clamp((oceneHeight - height)/(oceneHeight - 1.0), 0.0, 1.0), 2.0);
-        fs_Pos = vertexPos;
-        fs_Shininess = mix(coastShininess, rockShininess, alpha);
-        fs_Col = mix(u_CoastColor, u_RockColor, alpha) * depth3;
-    }
-    //Above ocean
-    else
-    {
-        float alpha = 0.0;
-
-        //Tropical
-        vec4 mixFoliageColor = mix(u_TropicalColor, u_FoliageColor, tropicalAlpha);
-        float mixFoliageShininess = mix(tropicalShininess, foliageShininess, tropicalAlpha);
-
-        //Polar
-        if(abs(vertexPos.y) > u_HeightsInfo.w)
-            alpha = clamp((abs(vertexPos.y) - u_HeightsInfo.w)/(2.0 - u_HeightsInfo.w), 0.0, 1.0);
-        
-        vec4 terrainColor = mix(mixFoliageColor, u_SnowColor, alpha);
-        float terrainShininess = mix(mixFoliageShininess, iceShininess, alpha);
-
-        float coastLine = oceneHeight + u_HeightsInfo.y * pow(tropicalAlpha, 2.5);
-        float snowLine = 1.0 + u_HeightsInfo.z;
-
-        if(height < coastLine)
-        {
-            fs_Col = u_CoastColor;
-            fs_Shininess = coastShininess;
-        }
-        else if(height >= snowLine)
-        {
-            float alpha = clamp( (height - snowLine ) / 0.03, 0.0, 1.0);
-            fs_Col = mix(terrainColor, u_SnowColor, alpha);
-            fs_Shininess = mix(terrainShininess, snowShininess, alpha);
-        }        
-        else
-        {
-            float alpha = clamp( (height - coastLine ) / u_HeightsInfo.y, 0.0, 1.0);
-            fs_Col = mix(u_CoastColor, terrainColor, alpha);
-            fs_Shininess = mix(coastShininess, terrainShininess, alpha);
-        }
-
-    }
+    vertexPos.xyz = localNormal * oceneHeight;
 
     vec4 modelposition = u_Model * vertexPos;
     vec3 sunDirection = normalize(u_SunPos.xyz);

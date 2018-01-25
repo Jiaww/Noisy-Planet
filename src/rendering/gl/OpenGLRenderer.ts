@@ -34,20 +34,16 @@ class OpenGLRenderer {
     mat4.multiply(viewProj, camera.projectionMatrix, camera.viewMatrix);
     prog.setModelMatrix(model);
     prog.setViewProjMatrix(viewProj);
-    prog.setGeometryColor(color);
-    prog.setGeometryColor2(color2);
     prog.updateTime(time);
-    prog.setTrig(controls.FunnyTrig);
-    prog.setScaleSpeed(controls.ScaleSpeed);
-    prog.setRotateSpeed(controls.RotateSpeed);
+    prog.setTrig(controls.FloatTrig, controls.EnvTrig);
     prog.setOctave(controls.Octave);
     prog.setFloatSpeed(controls.FloatSpeed);
-    prog.setFloatAmp(controls.FloatAmp);
     //prog.setResolution(vec2.fromValues(window.innerWidth, window.innerHeight));
-    prog.setCamInfo(camera.position, camera.direction);
+    prog.setCamInfo(camera.position);
 
     prog.setColors(
       vec4.fromValues(controls.OceanColor[0]/255, controls.OceanColor[1]/255, controls.OceanColor[2]/255, 1),
+      vec4.fromValues(controls.RockColor[0]/255, controls.RockColor[1]/255, controls.RockColor[2]/255, 1),
       vec4.fromValues(controls.SnowColor[0]/255, controls.SnowColor[1]/255, controls.SnowColor[2]/255, 1),
       vec4.fromValues(controls.CoastColor[0]/255, controls.CoastColor[1]/255, controls.CoastColor[2]/255, 1),
       vec4.fromValues(controls.FoliageColor[0]/255, controls.FoliageColor[1]/255, controls.FoliageColor[2]/255, 1),
@@ -55,12 +51,24 @@ class OpenGLRenderer {
       vec4.fromValues(controls.MountainColor[0]/255, controls.MountainColor[1]/255, controls.MountainColor[2]/255, 1));
 
     prog.setHeightsInfo(vec4.fromValues(controls.OceanHeight, controls.CoastHeight, controls.SnowHeight, controls.PolarCapsAttitude));
-    prog.setTerrainInfo(vec2.fromValues(controls.TerrainExp, controls.TerrainSeed));
+    
+    if (controls._4DTrig)
+      // Set Terrain seed according to u_Time
+      prog.setTerrainInfo(vec2.fromValues(controls.TerrainExp, Math.floor(time*20)));
+    else
+      prog.setTerrainInfo(vec2.fromValues(controls.TerrainExp, controls.TerrainSeed));
 
     prog.setSunSettings(
       vec3.fromValues(controls.SunPositionX, controls.SunPositionY, controls.SunPositionZ),
       vec4.fromValues(controls.SunColor[0]/255, controls.SunColor[1]/255, controls.SunColor[2]/255, controls.SunIntensity)
     );
+
+    if (controls.Shader == 'lambert')
+      prog.setShader(0.0);
+    else
+      //Blinn-Phong
+      prog.setShader(1.0);
+
     for (let drawable of drawables) {
       if (drawable){
         if (drawable.bindTex()){

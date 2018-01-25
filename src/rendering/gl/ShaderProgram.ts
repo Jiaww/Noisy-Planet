@@ -29,6 +29,7 @@ class ShaderProgram {
   unifModelInvTr: WebGLUniformLocation;
   unifViewProj: WebGLUniformLocation;
   unifOceanColor: WebGLUniformLocation;
+  unifRockColor: WebGLUniformLocation;
   unifSnowColor: WebGLUniformLocation;
   unifCoastColor: WebGLUniformLocation;
   unifFoliageColor: WebGLUniformLocation;
@@ -43,16 +44,8 @@ class ShaderProgram {
   unifFloatSpeed: WebGLUniformLocation;
   unifSunPos: WebGLUniformLocation;
   unifSunLight: WebGLUniformLocation;
-
-// Other Settings for testing
-  unifColor: WebGLUniformLocation;
-  unifColor2: WebGLUniformLocation;
-  unifScaleSpeed: WebGLUniformLocation;
-  unifRotateSpeed: WebGLUniformLocation;
-  unifFloatAmp: WebGLUniformLocation;
-  unifResolution: WebGLUniformLocation;
-  unifCamDir: WebGLUniformLocation;
   unifEnvMap: WebGLUniformLocation;
+  unifShader: WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -72,6 +65,7 @@ class ShaderProgram {
     this.unifModelInvTr   = gl.getUniformLocation(this.prog, "u_ModelInvTr");
     this.unifViewProj     = gl.getUniformLocation(this.prog, "u_ViewProj");
     this.unifOceanColor   = gl.getUniformLocation(this.prog, "u_OceanColor");
+    this.unifRockColor   = gl.getUniformLocation(this.prog, "u_RockColor");
     this.unifSnowColor    = gl.getUniformLocation(this.prog, "u_SnowColor");
     this.unifCoastColor   = gl.getUniformLocation(this.prog, "u_CoastColor");
     this.unifFoliageColor = gl.getUniformLocation(this.prog, "u_FoliageColor");
@@ -86,16 +80,8 @@ class ShaderProgram {
     this.unifTrig         = gl.getUniformLocation(this.prog, "u_Trig");
     this.unifSunPos       = gl.getUniformLocation(this.prog, "u_SunPos");
     this.unifSunLight     = gl.getUniformLocation(this.prog, "u_SunLight"); // r,g,b, intensity
-
-    // Other Setting for testing
-    this.unifColor        = gl.getUniformLocation(this.prog, "u_Color");
-    this.unifColor2       = gl.getUniformLocation(this.prog, "u_Color2");
-    this.unifScaleSpeed   = gl.getUniformLocation(this.prog, "u_ScaleSpeed");
-    this.unifRotateSpeed  = gl.getUniformLocation(this.prog, "u_RotateSpeed");
-    this.unifFloatAmp     = gl.getUniformLocation(this.prog, "u_FloatAmp");
-    this.unifResolution   = gl.getUniformLocation(this.prog, "u_Resolution");
-    this.unifCamDir       = gl.getUniformLocation(this.prog, "u_CamDir");
     this.unifEnvMap       = gl.getUniformLocation(this.prog, "u_EnvMap");
+    this.unifShader       = gl.getUniformLocation(this.prog, "u_Shader");
   }
 
   use() {
@@ -126,25 +112,13 @@ class ShaderProgram {
     }
   }
 
-  setGeometryColor(color: vec4) {
-    this.use();
-    if (this.unifColor !== -1) {
-      gl.uniform4fv(this.unifColor, color);
-    }
-  }
-
-  setGeometryColor2(color: vec4) {
-    this.use();
-    if (this.unifColor !== -1) {
-      gl.uniform4fv(this.unifColor2, color);
-    }
-  }
-
   // Set Colors
-  setColors(oceanColor: vec4, snowColor: vec4, coastColor: vec4, foliageColor: vec4, tropicalColor: vec4, mountainColor: vec4){
+  setColors(oceanColor: vec4, rockColor: vec4, snowColor: vec4, coastColor: vec4, foliageColor: vec4, tropicalColor: vec4, mountainColor: vec4){
     this.use();
     if (this.unifOceanColor !== -1)
       gl.uniform4fv(this.unifOceanColor, oceanColor);
+    if (this.unifRockColor !== -1)
+      gl.uniform4fv(this.unifRockColor, rockColor);
     if (this.unifSnowColor !== -1)
       gl.uniform4fv(this.unifSnowColor, snowColor);
     if (this.unifCoastColor !== -1)
@@ -176,31 +150,20 @@ class ShaderProgram {
     }
   }
 
-  setTrig(trig: boolean) {
+  setTrig(funnyTrig: boolean, envTrig: boolean) {
     this.use();
     if (this.unifTrig !== -1) {
-      if (trig){
-        gl.uniform1f(this.unifTrig, 1.0);
+      let trigVec = vec2.fromValues(0.0, 0.0);
+      if (funnyTrig){
+        trigVec[0] = 1.0;
       }
-      else{
-        gl.uniform1f(this.unifTrig, 0.0);
+      if (envTrig){
+        trigVec[1] = 1.0;
       }
+      gl.uniform2fv(this.unifTrig, trigVec);
     }
   }
 
-  setScaleSpeed(scaleSpeed: number) {
-    this.use();
-    if (this.unifScaleSpeed !== -1) {
-      gl.uniform1f(this.unifScaleSpeed, scaleSpeed);
-    }
-  }
-
-  setRotateSpeed(rotateSpeed: number) {
-    this.use();
-    if (this.unifRotateSpeed !== -1) {
-      gl.uniform1f(this.unifRotateSpeed, rotateSpeed);
-    }
-  }
 
   setFloatSpeed(floatSpeed: number) {
     this.use();
@@ -216,27 +179,10 @@ class ShaderProgram {
     }
   }
 
-  setFloatAmp(floatAmp: number){
-    this.use();
-    if (this.unifFloatAmp !== -1){
-      gl.uniform1f(this.unifFloatAmp, floatAmp);
-    }
-  }
-  
-  setResolution(resolution: vec2) {
-    this.use();
-    if (this.unifResolution !== -1) {
-      gl.uniform2fv(this.unifResolution, resolution);
-    }
-  }
-
-  setCamInfo(camPos: vec3, camDir: vec3) {
+  setCamInfo(camPos: vec3) {
     this.use();
     if (this.unifCamPos !== -1) {
       gl.uniform3fv(this.unifCamPos, camPos);
-    }
-    if (this.unifCamDir !== -1) {
-      gl.uniform3fv(this.unifCamDir, camDir);
     }
   }
 
@@ -259,6 +205,13 @@ class ShaderProgram {
     }
   }
   
+  setShader(shaderNum: number){
+    this.use();
+    if (this.unifShader !== -1) {
+      gl.uniform1f(this.unifShader, shaderNum);
+    }
+  }
+
   draw(d: Drawable) {
     this.use();
 

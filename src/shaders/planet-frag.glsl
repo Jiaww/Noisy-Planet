@@ -16,10 +16,10 @@ uniform vec3 u_CamPos;
 uniform float u_Time;
 uniform vec2 u_TerrainInfo;
 uniform float u_Octave;
+uniform float u_Shader;
 
 uniform vec4 u_SunLight; // r, g, b, intensity
 
-uniform sampler2D u_EnvMap;
 
 // Return a random direction in a circle
 vec3 random3( vec3 p, float seed ) {
@@ -90,7 +90,6 @@ in vec4 fs_Nor;
 in vec4 fs_LightVec;
 in vec4 fs_Col;
 in vec4 fs_ViewVec;
-in float fs_TerrainType;
 in float fs_Shininess;
 
 out vec4 out_Col; // This is the final output color that you will see on your
@@ -118,45 +117,30 @@ void main()
 // we have to recompute the normals. 
 
 // Implicit Procedural Planet Generation - Report 4.4.2 Level of Detail
-    //terrain
-    if(fs_TerrainType > 0.0)
-    {
-        float resolution = 4.0;
-        int LOD = int(10.0 * (1.0 - smoothstep(0.0, u_Octave, log(length(u_CamPos.xyz)))));
-        float noise = fbm(fs_Pos.xyz, resolution, LOD) * 2.0;
-        noise = pow(noise,  u_TerrainInfo.x);
-        vec4 vertexPos = fs_Pos;
-        vertexPos.xyz += localNormal * noise;
-       //detail normal
-        normalVec = normalize(cross( dFdx(vertexPos.xyz), dFdy(vertexPos.xyz)));         
-        float NolN= clamp(dot(localNormal, normalVec), 0.0, 1.0);
-        diffuseColor = mix(u_MountainColor, diffuseColor, NolN*NolN*NolN);       
-    }
-    else
-    {
-        vec4 vertexPos = fs_Pos;
-         //detail normal
-        normalVec = normalize(cross( dFdx(vertexPos.xyz), dFdy(vertexPos.xyz))); 
-        // Near Polar
-        float Interp = clamp((abs(fs_Pos.y) - u_HeightsInfo.w)/(2.0 - u_HeightsInfo.w), 0.0, 1.0);
-        diffuseColor = mix(diffuseColor, u_SnowColor, pow(Interp, 2.5));
-    }
+
+    float resolution = 4.0;
+    int LOD = int(10.0 * (1.0 - smoothstep(0.0, u_Octave, log(length(u_CamPos.xyz)))));
+    float noise = fbm(fs_Pos.xyz, resolution, LOD) * 2.0;
+    noise = pow(noise,  u_TerrainInfo.x);
+    vec4 vertexPos = fs_Pos;
+    vertexPos.xyz += localNormal * noise;
+   //detail normal
+    normalVec = normalize(cross( dFdx(vertexPos.xyz), dFdy(vertexPos.xyz)));         
+    float Steepness= clamp(dot(localNormal, normalVec), 0.0, 1.0);
+    diffuseColor = mix(u_MountainColor, diffuseColor, pow(Steepness, 3.0));       
+
     float diffuseTerm = clamp(dot(normalVec, normalize(fs_LightVec.xyz)), 0.0, 1.0);
     //Lambert
-    // if(u_SunPosition.w == 0.0)
-    // {
-    // }
-    // //Blinn_Phong
-    // else if(u_SunPosition.w == 1.0)
-    // {
-    vec3 halfVec = fs_ViewVec.xyz + fs_LightVec.xyz;
 
-    halfVec = normalize(halfVec);        
-    //Intensity of the specular light
-    float NoH = clamp(dot( normalVec, halfVec ), 0.0, 1.0);
-    specularTerm = vec3(pow(clamp(NoH, 0.0, 1.0), pow(200.0, Shininess))) * SpecularColor * Shininess;
-
-    // }
+    //Blinn_Phong
+    if(u_Shader == 1.0)
+    {
+        vec3 halfVec = fs_ViewVec.xyz + fs_LightVec.xyz;
+        halfVec = normalize(halfVec);        
+        //Intensity of the specular light
+        float NoH = clamp(dot( normalVec, halfVec ), 0.0, 1.0);
+        specularTerm = vec3(pow(clamp(NoH, 0.0, 1.0), pow(200.0, Shininess))) * SpecularColor * Shininess;
+    }
 
     float ambientTerm = 0.0;
     float lightIntensity = diffuseTerm + ambientTerm;   //Add a small float value to the color multiplier
@@ -166,15 +150,7 @@ void main()
                                                             //lit by our point light are not completely black.
 
 
-    vec3 reflecVec = reflect(-fs_ViewVec.xyz, normalVec);
-    //Envmap
-    vec2 st;
-    st.x = (atan(reflecVec.z, reflecVec.x) + PI) / (2.0*PI);
-    st.y = acos(reflecVec.y) / PI;
-    vec4 envColor = texture(u_EnvMap, st) * Shininess;
-
-    // vec4 envColor = texture(u_EnvMap, vN) * Shininess * 0.5;
     // Compute final shaded color
-    vec4 planetColor = vec4( ( diffuseColor.rgb + specularTerm + envColor.xyz) * lightIntensity, 1.0);
+    vec4 planetColor = vec4( ( diffuseColor.rgb + specularTerm) * lightIntensity, 1.0);
     out_Col = vec4(planetColor.xyz * u_SunLight.rgb * u_SunLight.a, 1.0);
 }
