@@ -154,5 +154,5 @@ void main()
 
     // Compute final shaded color
     vec4 finalColor = vec4( ( diffuseColor.rgb + specularTerm) * lightIntensity, 1.0);
-    out_Col = vec4(mix(finalColor, u_HaloColor, alpha).rgb * u_SunLight.rgb * u_SunLight.a, 1.0);
+    out_Col = vec4(finalColor.rgb * u_SunLight.rgb * u_SunLight.a, 1.0);
 }
