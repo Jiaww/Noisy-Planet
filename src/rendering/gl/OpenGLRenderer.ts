@@ -55,9 +55,9 @@ class OpenGLRenderer {
     
     if (controls._4DTrig)
       // Set Terrain seed according to u_Time
-      prog.setTerrainInfo(vec2.fromValues(controls.TerrainExp, Math.floor(time*20)));
-    else
-      prog.setTerrainInfo(vec2.fromValues(controls.TerrainExp, controls.TerrainSeed));
+      controls.TerrainSeed = Math.floor(time*20);
+   
+    prog.setTerrainInfo(vec2.fromValues(controls.TerrainExp, controls.TerrainSeed));
 
     prog.setSunSettings(
       vec3.fromValues(controls.SunPositionX, controls.SunPositionY, controls.SunPositionZ),
