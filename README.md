@@ -9,7 +9,7 @@
 
 ## Overview
 - Use perlin noise functions to procedurally generate the surface of a planet using WebGL
-- [Live Demo Link](https://jiaww.github.io/homework-1-noisy-planets-Jiaww/)
+- [Live Demo Link](https://jiaww.github.io/Noisy-Planet/)
 
 | **Final Result** |
 |---|
